@@ -9,14 +9,15 @@ export default function FoodCard({ item }) {
   const cartItem = items.find(i => i.id === item.id)
   const qty = cartItem ? cartItem.qty : 0
 
-  function handleAdd() {
+  function handleAdd(e) {
+    e.stopPropagation(); // prevent card click
     addItem(item)
     setAdded(true)
     setTimeout(() => setAdded(false), 1200)
   }
 
-  function handleInc() { updateQty(item.id, qty + 1) }
-  function handleDec() { updateQty(item.id, qty - 1) }
+  function handleInc(e) { e.stopPropagation(); updateQty(item.id, qty + 1) }
+  function handleDec(e) { e.stopPropagation(); updateQty(item.id, qty - 1) }
 
   return (
     <div className={styles.card}>
@@ -24,11 +25,11 @@ export default function FoodCard({ item }) {
         <div className={styles.imgPlaceholder}>
           <span>{item.emoji || '🍛'}</span>
         </div>
-        <span className={`badge ${item.isVeg ? 'badge-veg' : 'badge-nonveg'} ${styles.vegBadge}`}>
+        <span className={styles.vegBadge} style={{ color: item.isVeg ? '#388e3c' : '#d4523a' }}>
           {item.isVeg ? 'Veg' : 'Non-Veg'}
         </span>
         {item.isPopular && (
-          <span className={`badge badge-red ${styles.popularBadge}`}>Popular</span>
+          <span className={styles.popularBadge}>Popular</span>
         )}
       </div>
 
@@ -39,9 +40,7 @@ export default function FoodCard({ item }) {
 
         <div className={styles.spiceRow}>
           {[1,2,3].map(n => (
-            <span key={n} className={`${styles.chili} ${n <= item.spice ? styles.chiliHot : ''}`}>
-              🌶
-            </span>
+            <div key={n} className={`${styles.chili} ${n <= item.spice ? styles.chiliHot : ''}`}></div>
           ))}
         </div>
 
@@ -53,7 +52,7 @@ export default function FoodCard({ item }) {
               className={`${styles.addBtn} ${added ? styles.added : ''}`}
               onClick={handleAdd}
             >
-              {added ? '✓ Added' : '+ Add'}
+              {added ? '✓ Added' : 'Add'}
             </button>
           ) : (
             <div className={styles.qtyControl}>

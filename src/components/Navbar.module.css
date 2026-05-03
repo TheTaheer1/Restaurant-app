@@ -1,170 +1,61 @@
+/* ── NAV ── */
 .nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: transparent;
-  transition: background 0.3s, box-shadow 0.3s;
+  position: fixed; top: 0; width: 100%; z-index: 1000;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 48px;
+  background: linear-gradient(to bottom, rgba(20,10,2,0.95), transparent);
+  transition: background 0.3s;
 }
+.navLogo { font-family: 'Playfair Display', serif; font-size: 24px; color: #e8a84c; letter-spacing: 2px; text-decoration: none; position: relative; z-index: 1001; }
 
-.scrolled {
-  background: rgba(26, 10, 0, 0.97);
-  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-  backdrop-filter: blur(8px);
-}
+.navLinks { display: flex; gap: 32px; list-style: none; }
+.navLinks a { color: #f5ede0; text-decoration: none; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.85; transition: opacity 0.2s, color 0.2s; }
+.navLinks a:hover { opacity: 1; color: #e8a84c; }
 
-.inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
+.navCta { background: #e8a84c; color: #1a1008; padding: 10px 24px; border-radius: 2px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; cursor: pointer; border: none; transition: background 0.2s; text-decoration: none; }
+.navCta:hover { background: #d4913a; }
 
-/* LOGO */
-.logo {
-  font-family: var(--font-display);
-  font-size: 20px;
-  color: var(--brown-pale);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-.logo em { color: var(--brown-light); font-style: italic; }
-.logoIcon { font-size: 22px; }
-
-/* DESKTOP LINKS */
-.links {
-  display: flex;
-  list-style: none;
-  gap: 32px;
-  flex: 1;
-  justify-content: center;
-}
-
-.links a {
-  font-size: 13px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(253,245,232,0.7);
-  transition: color 0.2s;
-  font-weight: 600;
-}
-.links a:hover, .links a.active { color: var(--brown-light); }
-
-/* ACTIONS */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.cartBtn {
-  position: relative;
-  background: none;
-  color: var(--brown-pale);
-  display: flex;
-  align-items: center;
-  padding: 6px;
-  border-radius: 50%;
-  transition: color 0.2s, background 0.2s;
-}
-.cartBtn:hover { color: var(--brown-light); background: rgba(255,255,255,0.08); }
-
-.badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: var(--red-primary);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reserveBtn {
-  background: var(--red-primary);
-  color: white;
-  padding: 9px 22px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-.reserveBtn:hover { background: var(--red-deep); }
-
-/* HAMBURGER */
-.burger {
+/* ── MOBILE HAMBURGER ── */
+.hamburger {
   display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  padding: 4px;
+  background: none; border: none;
+  cursor: pointer;
+  flex-direction: column; gap: 6px;
+  position: relative; z-index: 1001;
+  padding: 8px;
 }
-.burger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--brown-pale);
-  border-radius: 2px;
-  transition: transform 0.25s, opacity 0.25s;
-  transform-origin: center;
+.hamburger span {
+  display: block; width: 24px; height: 2px; background: #e8a84c;
+  transition: all 0.3s ease;
 }
-.burgerOpen span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.burgerOpen span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-.burgerOpen span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.barOpen1 { transform: translateY(8px) rotate(45deg); width: 24px; height: 2px; background: #e8a84c; display: block; }
+.barOpen2 { opacity: 0; width: 24px; height: 2px; background: #e8a84c; display: block; }
+.barOpen3 { transform: translateY(-8px) rotate(-45deg); width: 24px; height: 2px; background: #e8a84c; display: block; }
 
-/* MOBILE DRAWER */
-.drawer {
-  background: var(--brown-darkest);
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.35s ease;
+/* ── MOBILE DRAWER ── */
+.mobileDrawer {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+  background: rgba(20, 13, 4, 0.98);
+  backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
 }
-.drawerOpen { max-height: 400px; }
+.drawerOpen { opacity: 1; pointer-events: auto; }
 
-.drawerLinks {
-  list-style: none;
-  padding: 12px 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.mobileLinks { list-style: none; display: flex; flex-direction: column; gap: 24px; text-align: center; }
+.mobileLinks a { color: #f5ede0; text-decoration: none; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; }
+.mobileLinks a:hover { color: #e8a84c; }
 
-.drawerLinks a {
-  display: block;
-  padding: 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(253,245,232,0.7);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  transition: color 0.2s;
-  letter-spacing: 0.5px;
-}
-.drawerLinks a:hover, .drawerLinks .drawerActive { color: var(--brown-light); }
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .links     { display: none; }
-  .reserveBtn { display: none; }
-  .burger    { display: flex; }
-  .inner     { padding: 0 16px; }
+.mobileCta {
+  background: #e8a84c; color: #1a1008; padding: 14px 32px; border-radius: 2px;
+  font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; text-decoration: none;
 }
 
-@media (max-width: 400px) {
-  .logo { font-size: 17px; }
+/* ── RESPONSIVE BKP ── */
+@media (max-width: 900px) {
+  .nav { padding: 16px 24px; }
+  .desktopOnly { display: none; }
+  .hamburger { display: flex; }
 }

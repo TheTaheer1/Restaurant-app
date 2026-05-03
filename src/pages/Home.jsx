@@ -1,134 +1,222 @@
 import { Link } from 'react-router-dom'
-import FoodCard from '../components/FoodCard'
-import ReviewCard from '../components/ReviewCard'
 import styles from './Home.module.css'
 
-const FEATURED = [
-  { id: 1, name: 'Raan-e-Sikandari', category: 'Chef\'s Special', description: 'Slow-roasted whole leg of lamb marinated 48 hours in saffron, yoghurt & royal spices.', price: 1650, emoji: '🍖', spice: 2, isVeg: false, isPopular: true },
-  { id: 2, name: 'Dal Makhani', category: 'Village Classic', description: 'Black lentils slow-cooked overnight in a wood-fired pot with hand-churned cream and ghee.', price: 480, emoji: '🫕', spice: 1, isVeg: true, isPopular: true },
-  { id: 3, name: 'Seekh Kebab Platter', category: 'From the Tandoor', description: 'Minced lamb with fresh herbs, charred over live charcoal. Served with mint chutney.', price: 720, emoji: '🔥', spice: 3, isVeg: false, isPopular: false },
-]
-
-const REVIEWS = [
-  { id: 1, name: 'Priya Mehta', location: 'Bengaluru', rating: 5, text: 'The Raan-e-Sikandari was absolutely divine. Fell right off the bone and the whole ambiance takes you back in time.', date: 'Apr 2026' },
-  { id: 2, name: 'Arjun & Kavitha', location: 'Bengaluru', rating: 5, text: 'We celebrated our anniversary here and it was magical. The private room, attentive service, and the food — sheer perfection.', date: 'Mar 2026' },
-  { id: 3, name: 'Rahul Singh', location: 'Mumbai', rating: 5, text: 'Best dal makhani in the city. No contest. I have been coming every month for two years and it never disappoints.', date: 'Feb 2026' },
-]
-
 export default function Home() {
+  const scrollTo = (selector) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
-    <div className={styles.home}>
-      {/* ── HERO ── */}
+    <div>
+      {/* HERO */}
       <section className={styles.hero}>
-        <div className={styles.heroOverlay} />
-        <div className={`container ${styles.heroContent}`}>
-          <span className={styles.heroBadge}>Est. 2012 · Bengaluru</span>
-          <h1 className={styles.heroTitle}>
-            A Taste of<br /><em>Ancient India</em>
-          </h1>
-          <p className={styles.heroSub}>
-            Where centuries-old recipes meet open-flame cooking. Every dish tells a story — of spice routes, village kitchens, and the warmth of a shared table.
-          </p>
-          <div className={styles.heroBtns}>
-            <Link to="/menu" className="btn-primary">Explore Menu</Link>
-            <Link to="/cart" className="btn-ghost">View Cart</Link>
+        <div className={styles.heroContent}>
+          <div className={styles.heroBadge}>Est. 2012 · Bengaluru</div>
+          <h1>A Taste of <em>Ancient</em> India</h1>
+          <p>Where centuries-old recipes meet open-flame cooking. Every dish tells a story — of spice routes, village kitchens, and the warmth of a shared table.</p>
+          <div className={styles.heroActions}>
+            <button className={styles.btnPrimary} onClick={() => scrollTo(`.${styles.reservationSection}`)}>Book Your Table</button>
+            <button className={styles.btnGhost} onClick={() => scrollTo(`.${styles.menuSection}`)}>Explore Menu</button>
           </div>
         </div>
         <div className={styles.scrollHint}>
-          <div className={styles.scrollLine} />
-          <span>Scroll to explore</span>
+          <span className={styles.scrollLine}></span>
+          Scroll to explore
         </div>
       </section>
 
-      {/* ── STATS ── */}
-      <div className={styles.stats}>
-        {[['12+', 'Years of Heritage'], ['80+', 'Signature Dishes'], ['4.9', 'Guest Rating'], ['3', 'Award Wins']].map(([num, label]) => (
-          <div key={label} className={styles.statItem}>
-            <div className={styles.statNum}>{num}</div>
-            <div className={styles.statLabel}>{label}</div>
-          </div>
-        ))}
+      {/* STATS STRIP */}
+      <div className={styles.aboutStrip}>
+        <div className={styles.aboutItem}>
+          <div className={styles.aboutNum}>12+</div>
+          <div className={styles.aboutLabel}>Years of Heritage</div>
+        </div>
+        <div className={styles.aboutItem}>
+          <div className={styles.aboutNum}>80+</div>
+          <div className={styles.aboutLabel}>Signature Dishes</div>
+        </div>
+        <div className={styles.aboutItem}>
+          <div className={styles.aboutNum}>4.9</div>
+          <div className={styles.aboutLabel}>Guest Rating</div>
+        </div>
+        <div className={styles.aboutItem}>
+          <div className={styles.aboutNum}>3</div>
+          <div className={styles.aboutLabel}>Award Wins</div>
+        </div>
       </div>
 
-      {/* ── FEATURED DISHES ── */}
-      <section className={styles.featured}>
-        <div className="container">
-          <div className={styles.sectionHeader}>
-            <div>
-              <div className="section-tag">Signature Dishes</div>
-              <h2 className="section-title">From Our Kitchen</h2>
-            </div>
-            <Link to="/menu" className="btn-secondary">Full Menu →</Link>
+      {/* MENU SECTION */}
+      <section className={`${styles.section} ${styles.menuSection}`}>
+        <div className={styles.menuHeader}>
+          <div>
+            <div className={styles.sectionTag}>Signature Dishes</div>
+            <div className={styles.sectionTitle}>From Our Kitchen</div>
           </div>
-          <div className={styles.cardGrid}>
-            {FEATURED.map(item => <FoodCard key={item.id} item={item} />)}
+          <Link to="/menu" className={styles.btnGhost} style={{ padding: '12px 28px', fontSize: '12px' }}>Full Menu →</Link>
+        </div>
+        <div className={styles.menuGrid}>
+          <div className={styles.menuCard}>
+            <div className={styles.menuCardImgPlaceholder}>🍛</div>
+            <div className={styles.menuCardBody}>
+              <div className={styles.menuCardTag}>Chef's Special</div>
+              <div className={styles.menuCardName}>Raan-e-Sikandari</div>
+              <div className={styles.menuCardDesc}>Slow-roasted whole leg of lamb marinated 48 hours in yoghurt, saffron & royal spices.</div>
+              <div className={styles.menuCardFooter}>
+                <div className={styles.menuPrice}>₹1,650</div>
+                <div className={styles.menuSpice}>
+                  <div className={`${styles.chili} ${styles.chiliHot}`}></div><div className={`${styles.chili} ${styles.chiliHot}`}></div><div className={styles.chili}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.menuCard}>
+            <div className={styles.menuCardImgPlaceholder}>🥘</div>
+            <div className={styles.menuCardBody}>
+              <div className={styles.menuCardTag}>Village Classic</div>
+              <div className={styles.menuCardName}>Dal Makhani</div>
+              <div className={styles.menuCardDesc}>Black lentils slow-cooked overnight in a wood-fired pot with hand-churned cream and ghee.</div>
+              <div className={styles.menuCardFooter}>
+                <div className={styles.menuPrice}>₹480</div>
+                <div className={styles.menuSpice}>
+                  <div className={`${styles.chili} ${styles.chiliHot}`}></div><div className={styles.chili}></div><div className={styles.chili}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.menuCard}>
+            <div className={styles.menuCardImgPlaceholder}>🔥</div>
+            <div className={styles.menuCardBody}>
+              <div className={styles.menuCardTag}>From the Tandoor</div>
+              <div className={styles.menuCardName}>Seekh Kebab Platter</div>
+              <div className={styles.menuCardDesc}>Minced lamb with fresh herbs, charred over live charcoal and served with mint chutney.</div>
+              <div className={styles.menuCardFooter}>
+                <div className={styles.menuPrice}>₹720</div>
+                <div className={styles.menuSpice}>
+                  <div className={`${styles.chili} ${styles.chiliHot}`}></div><div className={`${styles.chili} ${styles.chiliHot}`}></div><div className={`${styles.chili} ${styles.chiliHot}`}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── EXPERIENCE ── */}
-      <section className={styles.experience}>
-        <div className={styles.expImgSide} />
+      {/* EXPERIENCE */}
+      <div className={styles.experienceSection}>
+        <div className={styles.expImgSide}></div>
         <div className={styles.expTextSide}>
-          <div className="section-tag">The Experience</div>
-          <h2 className="section-title" style={{ color: 'var(--brown-pale)' }}>More Than a Meal</h2>
+          <div className={styles.sectionTag}>The Experience</div>
+          <div className={styles.sectionTitle} style={{ fontSize: '38px' }}>More Than a Meal</div>
           <ul className={styles.featureList}>
-            {[
-              ['Live Tandoor Kitchen', 'Watch our chefs work the traditional clay oven — bread pulled fresh, kebabs kissed by flame.'],
-              ['Seasonal Thali Nights', 'Every Thursday, a curated feast of 14 courses inspired by a different Indian state.'],
-              ['Private Dining Rooms', 'Intimate spaces for gatherings of 8–40, with personalised menus crafted just for you.'],
-            ].map(([title, desc]) => (
-              <li key={title} className={styles.featureItem}>
-                <div className={styles.featureDot} />
-                <div>
-                  <h4 className={styles.featureTitle}>{title}</h4>
-                  <p className={styles.featureDesc}>{desc}</p>
-                </div>
-              </li>
-            ))}
+            <li className={styles.featureItem}>
+              <div className={styles.featureDot}></div>
+              <div className={styles.featureText}>
+                <h4>Live Tandoor Kitchen</h4>
+                <p>Watch our chefs work the traditional clay oven — bread pulled fresh, kebabs kissed by flame.</p>
+              </div>
+            </li>
+            <li className={styles.featureItem}>
+              <div className={styles.featureDot}></div>
+              <div className={styles.featureText}>
+                <h4>Seasonal Thali Nights</h4>
+                <p>Every Thursday, a curated feast of 14 courses inspired by a different Indian state.</p>
+              </div>
+            </li>
+            <li className={styles.featureItem}>
+              <div className={styles.featureDot}></div>
+              <div className={styles.featureText}>
+                <h4>Private Dining Rooms</h4>
+                <p>Intimate spaces for gatherings of 8–40, with personalised menus crafted just for you.</p>
+              </div>
+            </li>
           </ul>
         </div>
-      </section>
+      </div>
 
-      {/* ── REVIEWS ── */}
-      <section className={styles.reviews}>
-        <div className="container">
-          <div className={styles.reviewsHeader}>
-            <div className="section-tag">Guest Stories</div>
-            <h2 className="section-title">What Our Guests Say</h2>
+      {/* TESTIMONIALS */}
+      <section className={`${styles.section} ${styles.testimonialsSection}`}>
+        <div className={styles.sectionTag} style={{ textAlign: 'center' }}>Guest Stories</div>
+        <div className={styles.sectionTitle}>What Our Guests Say</div>
+        <div className={styles.testimonialGrid}>
+          <div className={styles.testimonialCard}>
+            <div className={styles.stars}>★★★★★</div>
+            <div className={styles.testimonialText}>"The Raan-e-Sikandari was unlike anything I've tasted. Fell right off the bone. The whole ambiance takes you back in time."</div>
+            <div className={styles.testimonialAuthor}>— Priya M., Bengaluru</div>
           </div>
-          <div className={styles.reviewGrid}>
-            {REVIEWS.map(r => <ReviewCard key={r.id} review={r} />)}
+          <div className={styles.testimonialCard}>
+            <div className={styles.stars}>★★★★★</div>
+            <div className={styles.testimonialText}>"We celebrated our anniversary here and it was magical. The private room, the attentive service, the food — perfection."</div>
+            <div className={styles.testimonialAuthor}>— Arjun & Kavitha</div>
+          </div>
+          <div className={styles.testimonialCard}>
+            <div className={styles.stars}>★★★★★</div>
+            <div className={styles.testimonialText}>"Best dal makhani in the city. No contest. I've been coming every month for two years and it never disappoints."</div>
+            <div className={styles.testimonialAuthor}>— Rahul S., Mumbai</div>
           </div>
         </div>
       </section>
 
-      {/* ── RESERVATION CTA ── */}
-      <section className={styles.cta}>
-        <div className="container">
-          <div className="section-tag" style={{ color: 'var(--brown-light)' }}>Visit Us</div>
-          <h2 className={styles.ctaTitle}>Join Us for Dinner</h2>
-          <p className={styles.ctaSub}>
-            14 Koramangala High St, Bengaluru · Mon–Sun 12pm–11pm
-          </p>
-          <Link to="/menu" className="btn-primary" style={{ marginTop: '28px' }}>
-            Order Online Now
-          </Link>
+      {/* RESERVATION */}
+      <section className={`${styles.section} ${styles.reservationSection}`}>
+        <div>
+          <div className={styles.sectionTag}>Reservations</div>
+          <div className={styles.sectionTitle} style={{ fontSize: '40px' }}>Join Us for Dinner</div>
+          <div className={styles.sectionSub}>We'd love to have you. Book your table and let us take care of everything else.</div>
+          <div style={{ marginTop: '32px', fontSize: '13px', color: '#8a7560', lineHeight: 2 }}>
+            <div>📍 &nbsp; 14 Koramangala High St, Bengaluru</div>
+            <div>🕕 &nbsp; Mon–Sun · 12pm – 3pm · 7pm – 11pm</div>
+            <div>📞 &nbsp; +91 98400 00000</div>
+          </div>
         </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className={styles.footer}>
-        <div className="container">
-          <div className={styles.footerInner}>
-            <div className={styles.footerLogo}>Saffron & Smoke</div>
-            <p className={styles.footerCopy}>© 2026 Saffron & Smoke. All rights reserved.</p>
-            <div className={styles.footerLinks}>
-              {['Instagram', 'Facebook', 'Zomato'].map(l => (
-                <a key={l} href="#" className={styles.footerLink}>{l}</a>
-              ))}
+        <form className={styles.resForm} onSubmit={(e) => { e.preventDefault(); alert('Table reserved! We look forward to welcoming you.'); }}>
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Full Name</label>
+              <input type="text" placeholder="Priya Sharma" />
+            </div>
+            <div className={styles.formField}>
+              <label>Phone</label>
+              <input type="tel" placeholder="+91 00000 00000" />
             </div>
           </div>
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Date</label>
+              <input type="date" />
+            </div>
+            <div className={styles.formField}>
+              <label>Time</label>
+              <select>
+                <option>7:00 PM</option>
+                <option>7:30 PM</option>
+                <option>8:00 PM</option>
+                <option>8:30 PM</option>
+                <option>9:00 PM</option>
+              </select>
+            </div>
+          </div>
+          <div className={styles.formField}>
+            <label>Guests</label>
+            <select defaultValue="4 Guests">
+              <option>1 Guest</option>
+              <option>2 Guests</option>
+              <option>3 Guests</option>
+              <option value="4 Guests">4 Guests</option>
+              <option>5–8 Guests</option>
+              <option>Large party (8+)</option>
+            </select>
+          </div>
+          <button className={styles.btnPrimary} style={{ marginTop: '8px', padding: '16px' }}>Confirm Reservation</button>
+        </form>
+      </section>
+
+      {/* FOOTER */}
+      <footer className={styles.footer}>
+        <div className={styles.footerLogo}>Saffron & Smoke</div>
+        <div className={styles.footerCopy}>© 2026 Saffron & Smoke. All rights reserved.</div>
+        <div className={styles.footerLinks}>
+          <a href="#">Instagram</a>
+          <a href="#">Facebook</a>
+          <a href="#">Zomato</a>
         </div>
       </footer>
     </div>

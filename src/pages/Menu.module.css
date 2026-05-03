@@ -1,7 +1,8 @@
 .hero {
-  background: linear-gradient(135deg, var(--brown-darkest), var(--brown-mid));
+  background: linear-gradient(135deg, var(--brown-darkest), #100a05);
   padding: 64px 0 48px;
   text-align: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .heroTitle {
@@ -9,22 +10,22 @@
   font-size: clamp(32px, 6vw, 52px);
   color: var(--brown-cream);
   margin-bottom: 12px;
+  font-weight: normal;
 }
 
 .heroSub {
   font-size: 16px;
-  color: rgba(253,245,232,0.55);
+  color: var(--text-muted);
   font-weight: 300;
 }
 
 .controls {
-  background: white;
+  background: var(--brown-darkest);
   padding: 24px 0;
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 68px;
   z-index: 10;
-  box-shadow: var(--shadow-sm);
 }
 
 .searchRow {
@@ -52,38 +53,42 @@
 .searchInput {
   width: 100%;
   padding: 11px 16px 11px 42px;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: var(--font-body);
-  color: var(--text-primary);
-  background: var(--brown-cream);
+  color: var(--brown-cream);
+  background: var(--brown-dark);
   transition: border-color 0.2s;
   outline: none;
 }
-.searchInput:focus { border-color: var(--brown-accent); }
+.searchInput:focus { border-color: var(--brown-light); }
 
 .vegToggle {
   display: flex;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
 .toggleBtn {
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  background: white;
+  background: var(--brown-dark);
   color: var(--text-muted);
   transition: all 0.2s;
+  border: none;
   border-right: 1px solid var(--border-color);
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 .toggleBtn:last-child { border-right: none; }
-.toggleBtn:hover { background: var(--brown-cream); }
+.toggleBtn:hover { color: var(--brown-cream); }
 .toggleActive {
-  background: var(--brown-accent) !important;
-  color: white !important;
+  background: var(--brown-light) !important;
+  color: var(--brown-darkest) !important;
 }
 
 .pills {
@@ -95,31 +100,34 @@
 .pill {
   padding: 8px 20px;
   border-radius: 100px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  background: var(--brown-cream);
+  background: transparent;
   color: var(--text-muted);
-  border: 1.5px solid var(--border-color);
+  border: 1px solid var(--border-color);
   transition: all 0.2s;
   white-space: nowrap;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
-.pill:hover { border-color: var(--brown-accent); color: var(--brown-accent); }
+.pill:hover { border-color: var(--brown-light); color: var(--brown-light); }
 .pillActive {
-  background: var(--brown-dark) !important;
-  color: var(--brown-pale) !important;
-  border-color: var(--brown-dark) !important;
+  background: var(--brown-light) !important;
+  color: var(--brown-darkest) !important;
+  border-color: var(--brown-light) !important;
 }
 
 .menuBody {
   padding: 48px 0 80px;
-  background: var(--brown-cream);
-  min-height: 400px;
+  background: var(--brown-mid);
+  min-height: 50vh;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .empty {
@@ -127,12 +135,11 @@
   padding: 80px 0;
   color: var(--text-muted);
 }
-.empty span { font-size: 48px; display: block; margin-bottom: 16px; }
-.empty p { font-size: 16px; }
+.empty span { font-size: 48px; display: block; margin-bottom: 16px; filter: grayscale(1) opacity(0.5); }
+.empty p { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
 
 @media (max-width: 600px) {
   .searchRow { flex-direction: column; align-items: stretch; }
   .vegToggle { justify-content: center; }
-  .grid { grid-template-columns: 1fr; }
-  .controls { top: 68px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
