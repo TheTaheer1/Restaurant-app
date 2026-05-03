@@ -1,4 +1,4 @@
-# Saffron & Smoke 🌿
+# Restaurant 🌿
 
 A premium, highly responsive luxury restaurant web application built with React, Vite, and Framer Motion. 
 
