@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Saffron & Smoke 🌿
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A premium, highly responsive luxury restaurant web application built with React, Vite, and Framer Motion. 
 
-Currently, two official plugins are available:
+## 🌟 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Dynamic Landing Page**: Beautiful scroll-reveal animations using Framer Motion with optimized mobile-trigger margins.
+- **Interactive Menu**: Categorized, responsive menu display with elegant hover effects and spice-level indicators.
+- **Cart & Checkout Flow**: Full front-end cart management with global state via React Context API, leading to a multi-step checkout form.
+- **User Profile Dashboard**: Controlled React forms for managing user profile details, along with a dynamic order-history timeline.
+- **Admin Panel**: Role-gated mock administrative dashboard to oversee platform metrics.
+- **Responsive Navigation**: Adaptive mobile drawer navigation, fixing standard React-Router scroll behaviors, and strictly enforcing viewport boundaries.
+- **Rich Aesthetics**: Custom-crafted CSS tokens for a luxurious dark-mode color palette (`--brown-darkest`, `--e8a84c` accents).
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend Framework**: React 18
+- **Build Tool**: Vite
+- **Routing**: React Router DOM v6
+- **Animations**: Framer Motion
+- **Styling**: Vanilla CSS Modules & CSS Variables
 
-## Expanding the ESLint configuration
+## 🛠 Installation & Setup
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/TheTaheer1/Restaurant-app.git
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Navigate to the directory:**
+   ```bash
+   cd Restaurant-app
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📱 Mobile Polish
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+A significant amount of effort went into making this app perfect on mobile:
+- **Strict Viewport Containment**: Root `overflow-x: hidden` to prevent layout breaking on iOS/Android.
+- **Dynamic Flex Resizing**: Media queries rigorously test for flex container bounds to ensure no icons (like the Hamburger menu) are cut off.
+- **Intelligent Page Routing**: Custom `window.scrollTo(0, 0)` transition logic implemented so navigating on long mobile lists resets correctly.
