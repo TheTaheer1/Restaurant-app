@@ -18,7 +18,7 @@
 .imgWrap {
   position: relative;
   width: 100%;
-  height: 100px; /* Much smaller height */
+  height: 120px;
 }
 
 .imgPlaceholder {
@@ -27,8 +27,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
   background: var(--border-color);
+  overflow: hidden;
+}
+.imgPlaceholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  font-size: 10px;
+  color: transparent; /* Hides huge alt text if image broken */
 }
 
 .vegBadge {
@@ -176,8 +183,8 @@
 
 /* RESPONSIVE */
 @media (max-width: 480px) {
-  .imgPlaceholder { height: 80px; font-size: 24px; }
-  .imgWrap        { height: 80px; }
+  .imgPlaceholder { height: 100px; }
+  .imgWrap        { height: 100px; }
   .body           { padding: 10px; }
   .name           { font-size: 13px; margin-bottom: 2px; }
   .desc           { font-size: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 6px; }

@@ -5,7 +5,7 @@
 .title { font-family: var(--font-display); font-size: 40px; color: var(--brown-cream); }
 .count { color: rgba(253,245,232,0.5); font-size: 14px; margin-top: 6px; }
 
-.body { padding: 48px 0 80px; background: var(--brown-cream); }
+.body { padding: 48px 0 80px; background: var(--brown-darkest); }
 
 .layout {
   display: grid;
@@ -18,10 +18,11 @@
 .itemsCol { display: flex; flex-direction: column; gap: 0; }
 .itemsHeader {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px; font-weight: 700; font-size: 15px; color: var(--brown-dark);
+  margin-bottom: 16px; font-weight: 700; font-size: 15px; color: var(--brown-cream);
 }
 .clearBtn {
-  background: none; color: var(--red-primary); font-size: 13px;
+  background: none; border: none; cursor: pointer;
+  color: var(--red-primary); font-size: 13px;
   font-weight: 600; transition: color 0.2s;
 }
 .clearBtn:hover { color: var(--red-deep); }
@@ -29,7 +30,7 @@
 .items { display: flex; flex-direction: column; gap: 12px; }
 
 .cartItem {
-  background: white;
+  background: var(--brown-dark);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 16px;
@@ -40,9 +41,13 @@
 }
 .cartItem:hover { box-shadow: var(--shadow-sm); }
 
-.itemEmoji { font-size: 40px; flex-shrink: 0; }
+.itemEmoji {
+  width: 64px; height: 64px; flex-shrink: 0;
+  border-radius: var(--radius-md); object-fit: cover;
+  background: var(--brown-light);
+}
 .itemInfo { flex: 1; min-width: 0; }
-.itemName { font-weight: 700; color: var(--brown-dark); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.itemName { font-weight: 700; color: var(--brown-cream); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .itemCategory { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 3px 0; }
 .itemPrice { font-size: 14px; color: var(--brown-accent); font-weight: 600; }
 
@@ -50,41 +55,47 @@
 
 .qtyControl {
   display: flex; align-items: center;
-  border: 2px solid var(--brown-accent); border-radius: var(--radius-sm); overflow: hidden;
+  background: var(--brown-darkest);
+  border: 1px solid var(--border-color); 
+  border-radius: 100px; overflow: hidden;
 }
 .qtyControl button {
-  background: var(--brown-accent); color: white;
-  width: 28px; height: 28px; font-size: 16px; font-weight: 700;
+  background: transparent; color: var(--brown-cream);
+  width: 32px; height: 32px; font-size: 18px; font-weight: 500;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
-.qtyControl button:hover { background: var(--brown-warm); }
+.qtyControl button:hover { background: rgba(232,168,76,0.1); color: var(--brown-light); }
 .qtyControl span {
-  width: 30px; text-align: center; font-weight: 700; font-size: 14px; color: var(--brown-accent);
+  width: 28px; text-align: center; font-weight: 600; font-size: 14px; color: var(--brown-cream);
 }
 
-.itemTotal { font-weight: 700; font-size: 15px; color: var(--brown-dark); min-width: 60px; text-align: right; }
+.itemTotal { font-weight: 700; font-size: 15px; color: var(--brown-cream); min-width: 60px; text-align: right; }
 
 .removeBtn {
   background: none; color: var(--text-muted); font-size: 14px;
-  padding: 4px; border-radius: 4px; transition: color 0.2s, background 0.2s;
+  padding: 8px; border-radius: var(--radius-sm); transition: color 0.2s, background 0.2s;
+  display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
 }
 .removeBtn:hover { color: var(--red-primary); background: var(--red-light); }
 
 /* SUMMARY */
-.summaryCol { position: sticky; top: calc(68px + 24px); }
+.summaryCol { position: sticky; top: calc(68px + 24px); align-self: start; }
 .summary {
-  background: white; border: 1px solid var(--border-color);
+  background: var(--brown-dark); border: 1px solid var(--border-color);
   border-radius: var(--radius-lg); padding: 24px;
 }
-.summaryTitle { font-family: var(--font-display); font-size: 20px; color: var(--brown-dark); margin-bottom: 20px; }
-.summaryLines { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-.line { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary); }
+.summaryTitle { font-family: var(--font-display); font-size: 20px; color: var(--brown-cream); margin-bottom: 20px; }
+.summaryLines { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.line { display: flex; justify-content: space-between; font-size: 15px; color: var(--text-secondary); }
+.line:not(:last-child) { border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; }
 .free { color: #388e3c; font-weight: 700; }
 .deliveryNote { font-size: 12px; color: var(--brown-accent); text-align: center; margin-top: -4px; }
 .totalLine {
   display: flex; justify-content: space-between;
-  font-size: 18px; font-weight: 700; color: var(--brown-dark);
+  font-size: 18px; font-weight: 700; color: var(--brown-cream);
   border-top: 2px solid var(--border-color); padding-top: 16px; margin-bottom: 20px;
 }
 .checkoutBtn { width: 100%; justify-content: center; padding: 14px; margin-bottom: 12px; }
@@ -98,11 +109,17 @@
 .empty {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center;
-  min-height: 60vh; gap: 12px; padding: 40px;
+  min-height: 40vh; gap: 12px; padding: 40px;
+  background: var(--brown-dark); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);
 }
-.empty span { font-size: 64px; }
-.empty h2 { font-family: var(--font-display); font-size: 28px; color: var(--brown-dark); }
-.empty p { color: var(--text-muted); font-size: 15px; }
+.emptyIconWrap {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--brown-light); color: var(--brown-accent);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.empty h2 { font-family: var(--font-display); font-size: 28px; color: var(--brown-cream); }
+.empty p { color: var(--text-muted); font-size: 15px; max-width: 300px; margin: 0 auto; }
 
 /* RESPONSIVE */
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summaryCol { position: static; } }

@@ -9,31 +9,32 @@
 .name { font-family: var(--font-display); font-size: 28px; color: var(--brown-cream); margin-bottom: 6px; }
 .email { font-size: 13px; color: rgba(253,245,232,0.5); }
 
-.tabs { background: white; border-bottom: 1px solid var(--border-color); }
+.tabs { background: var(--brown-darkest); border-bottom: 1px solid var(--border-color); }
 .tabs .container { display: flex; gap: 0; }
 .tab {
   padding: 16px 28px; font-size: 14px; font-weight: 700;
   color: var(--text-muted); background: none;
-  border-bottom: 3px solid transparent; transition: color 0.2s, border-color 0.2s;
+  border: none; border-bottom: 3px solid transparent; 
+  cursor: pointer; transition: color 0.2s, border-color 0.2s;
 }
-.tab:hover { color: var(--brown-accent); }
-.tabActive { color: var(--brown-accent); border-bottom-color: var(--brown-accent); }
+.tab:hover { color: var(--brown-light); }
+.tabActive { color: var(--brown-light); border-bottom-color: var(--brown-light); }
 
-.body { padding: 40px 0 80px; background: var(--brown-cream); }
+.body { padding: 40px 0 80px; background: var(--brown-darkest); }
 
 .orders { display: flex; flex-direction: column; gap: 16px; }
 
 .orderCard {
-  background: white; border: 1px solid var(--border-color);
+  background: var(--brown-dark); border: 1px solid var(--border-color);
   border-radius: var(--radius-lg); padding: 24px;
 }
 
 .orderHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.orderId { font-weight: 700; font-size: 16px; color: var(--brown-dark); }
+.orderId { font-weight: 700; font-size: 16px; color: var(--brown-cream); }
 .orderDate { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 .statusPill { padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .orderItems { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6; }
-.orderTotal { font-size: 14px; font-weight: 700; color: var(--brown-accent); margin-bottom: 20px; }
+.orderTotal { font-size: 14px; font-weight: 700; color: var(--brown-light); margin-bottom: 20px; }
 
 /* PROGRESS */
 .progress { position: relative; padding-top: 8px; }
@@ -46,23 +47,23 @@
 .progressStep { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 1; }
 .progressDot {
   width: 18px; height: 18px; border-radius: 50%;
-  background: white; border: 2px solid var(--border-color); transition: all 0.3s;
+  background: var(--brown-darkest); border: 2px solid var(--border-color); transition: all 0.3s;
 }
 .progressDotDone { background: var(--red-primary); border-color: var(--red-primary); }
 .progressLabel { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; white-space: nowrap; }
 .progressLabelDone { color: var(--red-primary); font-weight: 700; }
 
 /* PROFILE FORM */
-.profileForm { background: white; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; max-width: 600px; }
+.profileForm { background: var(--brown-dark); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; max-width: 600px; }
 .formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
 .field input {
   padding: 11px 14px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md);
-  font-size: 14px; font-family: var(--font-body); color: var(--text-primary);
-  background: var(--brown-cream); outline: none; transition: border-color 0.2s;
+  font-size: 14px; font-family: var(--font-body); color: var(--brown-cream);
+  background: var(--brown-darkest); outline: none; transition: border-color 0.2s;
 }
-.field input:focus { border-color: var(--brown-accent); }
+.field input:focus { border-color: var(--brown-light); }
 
 @media (max-width: 600px) {
   .formGrid { grid-template-columns: 1fr; }

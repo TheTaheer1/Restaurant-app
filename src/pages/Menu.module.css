@@ -54,7 +54,7 @@
   width: 100%;
   padding: 11px 16px 11px 42px;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: 100px;
   font-size: 14px;
   font-family: var(--font-body);
   color: var(--brown-cream);
@@ -66,56 +66,102 @@
 
 .vegToggle {
   display: flex;
+  background: var(--brown-dark);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  border-radius: 100px;
+  padding: 4px;
+  gap: 4px;
 }
 
 .toggleBtn {
-  padding: 10px 16px;
-  font-size: 12px;
-  font-weight: 600;
-  background: var(--brown-dark);
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  background: transparent;
   color: var(--text-muted);
   transition: all 0.2s;
   border: none;
-  border-right: 1px solid var(--border-color);
+  border-radius: 100px;
   cursor: pointer;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-.toggleBtn:last-child { border-right: none; }
 .toggleBtn:hover { color: var(--brown-cream); }
 .toggleActive {
   background: var(--brown-light) !important;
   color: var(--brown-darkest) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.pills {
+.filterWrap {
+  position: relative;
+}
+
+.filterFab {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brown-light);
+  color: var(--brown-darkest);
+  border: none;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.filterFab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.pill {
-  padding: 8px 20px;
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 600;
-  background: transparent;
-  color: var(--text-muted);
+.filterDropdown {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  width: 240px;
+  background: #1f1308;
   border: 1px solid var(--border-color);
-  transition: all 0.2s;
-  white-space: nowrap;
-  cursor: pointer;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 100;
+  overflow: hidden;
 }
-.pill:hover { border-color: var(--brown-light); color: var(--brown-light); }
-.pillActive {
-  background: var(--brown-light) !important;
-  color: var(--brown-darkest) !important;
-  border-color: var(--brown-light) !important;
+
+.filterHeader {
+  padding: 16px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--brown-darkest);
+}
+
+.filterList {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.filterOption {
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(45, 31, 16, 0.5);
+  color: var(--brown-cream);
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.filterOption:last-child { border-bottom: none; }
+.filterOption:hover { background: rgba(232, 168, 76, 0.1); }
+.filterOptionActive {
+  color: var(--brown-light);
+  font-weight: 700;
+  background: rgba(232, 168, 76, 0.05);
 }
 
 .menuBody {
@@ -139,7 +185,16 @@
 .empty p { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
 
 @media (max-width: 600px) {
-  .searchRow { flex-direction: column; align-items: stretch; }
-  .vegToggle { justify-content: center; }
+  .controls { padding: 16px 0; }
+  .searchRow { 
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    margin-bottom: 0;
+  }
+  .searchWrap { grid-column: 1 / -1; }
+  .vegToggle { justify-content: center; width: 100%; }
+  .filterWrap { display: flex; align-items: center; justify-content: center; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .menuBody { padding: 24px 0 60px; }
 }

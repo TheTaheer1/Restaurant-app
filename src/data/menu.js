@@ -1,0 +1,22 @@
+export const MENU = [
+  { _id: "m1", name: "Veg Burger", price: 120, category: "Fast Food", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m2", name: "Chicken Burger", price: 150, category: "Fast Food", isVeg: false, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m3", name: "Margherita Pizza", price: 220, category: "Pizza", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m4", name: "Chicken Pizza", price: 280, category: "Pizza", isVeg: false, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m5", name: "Paneer Butter Masala", price: 200, category: "Main Course", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m6", name: "Butter Chicken", price: 260, category: "Main Course", isVeg: false, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m7", name: "Veg Biryani", price: 180, category: "Rice", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m8", name: "Chicken Biryani", price: 240, category: "Rice", isVeg: false, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m9", name: "French Fries", price: 90, category: "Snacks", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m10", name: "Garlic Bread", price: 110, category: "Snacks", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m11", name: "Cold Coffee", price: 130, category: "Beverages", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m12", name: "Chocolate Shake", price: 140, category: "Beverages", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m13", name: "Masala Dosa", price: 100, category: "South Indian", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m14", name: "Idli Sambar", price: 80, category: "South Indian", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m15", name: "Chole Bhature", price: 150, category: "North Indian", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m16", name: "Rajma Chawal", price: 140, category: "North Indian", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m17", name: "Spring Rolls", price: 130, category: "Chinese", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m18", name: "Hakka Noodles", price: 160, category: "Chinese", isVeg: false, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m19", name: "Ice Cream Sundae", price: 120, category: "Desserts", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "m20", name: "Gulab Jamun", price: 70, category: "Desserts", isVeg: true, image: "https://via.placeholder.com/150", available: true }
+]

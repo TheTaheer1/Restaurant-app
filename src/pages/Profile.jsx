@@ -2,23 +2,70 @@ import { useState } from 'react'
 import { formatOrderId, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
 import styles from './Profile.module.css'
 
-const MOCK_ORDERS = [
-  { id: 1, items: ['Dal Makhani', 'Garlic Naan × 2'], total: 630,  status: 'delivered',  date: '28 Apr 2026' },
-  { id: 2, items: ['Butter Chicken', 'Laccha Paratha', 'Mango Lassi'], total: 790, status: 'preparing', date: '03 May 2026' },
-  { id: 3, items: ['Seekh Kebab Platter', 'Masala Chai'], total: 840, status: 'confirmed', date: '03 May 2026' },
-]
+import { USERS } from '../data/users'
+import { ORDERS } from '../data/orders'
+
+function getInitials(name) {
+  if (!name) return ''
+  const words = name.trim().split(/\s+/)
+  if (words.length === 1) return words[0].charAt(0).toUpperCase()
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase()
+}
 
 export default function Profile() {
   const [tab, setTab] = useState('orders')
+
+  const baseUser = USERS.find(u => u._id === 'u1') || USERS[0]
+  const [currentUser, setCurrentUser] = useState({ ...baseUser })
+  
+  const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+  const [formData, setFormData] = useState({
+    name: currentUser.name,
+    email: currentUser.email,
+    phone: currentUser.phone,
+    city: 'Mumbai'
+  })
+  const [isSaving, setIsSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleSave = () => {
+    setIsSaving(true)
+    setTimeout(() => {
+      // Mutate global mock data for session persistence
+      const userToUpdate = USERS.find(u => u._id === currentUser._id)
+      if (userToUpdate) {
+        userToUpdate.name = formData.name
+        userToUpdate.email = formData.email
+        userToUpdate.phone = formData.phone
+      }
+      
+      // Update local state to trigger header re-render
+      setCurrentUser(prev => ({
+        ...prev,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      }))
+
+      setIsSaving(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }, 800)
+  }
 
   return (
     <div className="page">
       <div className={styles.hero}>
         <div className="container">
-          <div className={styles.avatar}>P</div>
+          <div className={styles.avatar}>{getInitials(currentUser.name)}</div>
           <div>
-            <h1 className={styles.name}>Priya Sharma</h1>
-            <p className={styles.email}>priya.sharma@email.com · +91 98400 00000</p>
+            <h1 className={styles.name}>{currentUser.name}</h1>
+            <p className={styles.email}>{currentUser.email} · +91 {currentUser.phone}</p>
           </div>
         </div>
       </div>
@@ -37,22 +84,24 @@ export default function Profile() {
         <div className="container">
           {tab === 'orders' && (
             <div className={styles.orders}>
-              {MOCK_ORDERS.map(order => {
-                const step = getStatusStep(order.status)
+              {userOrders.length === 0 && <p style={{color: 'var(--text-muted)'}}>No orders found.</p>}
+              {userOrders.map(order => {
+                const statusKey = order.status.toLowerCase()
+                const step = getStatusStep(statusKey)
                 const steps = ['Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered']
                 return (
-                  <div key={order.id} className={styles.orderCard}>
+                  <div key={order._id} className={styles.orderCard}>
                     <div className={styles.orderHeader}>
                       <div>
-                        <div className={styles.orderId}>{formatOrderId(order.id)}</div>
-                        <div className={styles.orderDate}>{order.date}</div>
+                        <div className={styles.orderId}>{formatOrderId(order._id.replace('o', ''))}</div>
+                        <div className={styles.orderDate}>{order.createdAt}</div>
                       </div>
-                      <span className={styles.statusPill} style={{ background: STATUS_COLORS[order.status] + '22', color: STATUS_COLORS[order.status] }}>
-                        {STATUS_LABELS[order.status]}
+                      <span className={styles.statusPill} style={{ background: STATUS_COLORS[statusKey] + '22', color: STATUS_COLORS[statusKey] }}>
+                        {STATUS_LABELS[statusKey] || order.status}
                       </span>
                     </div>
-                    <div className={styles.orderItems}>{order.items.join(' · ')}</div>
-                    <div className={styles.orderTotal}>Total: ₹{order.total}</div>
+                    <div className={styles.orderItems}>{order.items.map(i => `${i.name} × ${i.qty}`).join(' · ')}</div>
+                    <div className={styles.orderTotal}>Total: ₹{order.totalAmount}</div>
                     {/* Progress bar */}
                     {order.status !== 'cancelled' && (
                       <div className={styles.progress}>
@@ -76,14 +125,31 @@ export default function Profile() {
           {tab === 'profile' && (
             <div className={styles.profileForm}>
               <div className={styles.formGrid}>
-                {[['Name','Priya Sharma'],['Email','priya.sharma@email.com'],['Phone','+91 98400 00000'],['City','Bengaluru']].map(([label, val]) => (
-                  <div key={label} className={styles.field}>
-                    <label>{label}</label>
-                    <input defaultValue={val} />
-                  </div>
-                ))}
+                <div className={styles.field}>
+                  <label>Name</label>
+                  <input name="name" value={formData.name} onChange={handleChange} />
+                </div>
+                <div className={styles.field}>
+                  <label>Email</label>
+                  <input name="email" value={formData.email} onChange={handleChange} />
+                </div>
+                <div className={styles.field}>
+                  <label>Phone</label>
+                  <input name="phone" value={formData.phone} onChange={handleChange} />
+                </div>
+                <div className={styles.field}>
+                  <label>City</label>
+                  <input name="city" value={formData.city} onChange={handleChange} />
+                </div>
               </div>
-              <button className="btn-primary" style={{ marginTop: '24px' }}>Save Changes</button>
+              <button 
+                className="btn-primary" 
+                style={{ marginTop: '24px', opacity: isSaving ? 0.7 : 1 }} 
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : saved ? 'Saved Successfully!' : 'Save Changes'}
+              </button>
             </div>
           )}
         </div>

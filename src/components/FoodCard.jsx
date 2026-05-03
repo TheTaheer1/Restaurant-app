@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
+import { motion } from 'framer-motion'
 import styles from './FoodCard.module.css'
 
 export default function FoodCard({ item }) {
   const { addItem, items, updateQty } = useCart()
   const [added, setAdded] = useState(false)
 
-  const cartItem = items.find(i => i.id === item.id)
+  const cartItem = items.find(i => i._id === item._id)
   const qty = cartItem ? cartItem.qty : 0
 
   function handleAdd(e) {
@@ -16,14 +17,17 @@ export default function FoodCard({ item }) {
     setTimeout(() => setAdded(false), 1200)
   }
 
-  function handleInc(e) { e.stopPropagation(); updateQty(item.id, qty + 1) }
-  function handleDec(e) { e.stopPropagation(); updateQty(item.id, qty - 1) }
+  function handleInc(e) { e.stopPropagation(); updateQty(item._id, qty + 1) }
+  function handleDec(e) { e.stopPropagation(); updateQty(item._id, qty - 1) }
 
   return (
-    <div className={styles.card}>
+    <motion.div 
+      className={styles.card}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+    >
       <div className={styles.imgWrap}>
-        <div className={styles.imgPlaceholder}>
-          <span>{item.emoji || '🍛'}</span>
+        <div className={styles.imgPlaceholder} style={{ background: 'none' }}>
+          <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <span className={styles.vegBadge} style={{ color: item.isVeg ? '#388e3c' : '#d4523a' }}>
           {item.isVeg ? 'Veg' : 'Non-Veg'}
@@ -36,13 +40,6 @@ export default function FoodCard({ item }) {
       <div className={styles.body}>
         <div className={styles.category}>{item.category}</div>
         <h3 className={styles.name}>{item.name}</h3>
-        <p className={styles.desc}>{item.description}</p>
-
-        <div className={styles.spiceRow}>
-          {[1,2,3].map(n => (
-            <div key={n} className={`${styles.chili} ${n <= item.spice ? styles.chiliHot : ''}`}></div>
-          ))}
-        </div>
 
         <div className={styles.footer}>
           <div className={styles.price}>₹{item.price}</div>
@@ -63,6 +60,6 @@ export default function FoodCard({ item }) {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

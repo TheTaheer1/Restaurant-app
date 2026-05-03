@@ -3,25 +3,25 @@ import { STATUS_LABELS, STATUS_COLORS, formatOrderId } from '../utils/orderSlice
 import styles from './Admin.module.css'
 
 const ORDERS = [
-  { id: 1, customer: 'Priya Sharma',  items: 3, total: 1710, status: 'preparing',  time: '7:32 PM' },
-  { id: 2, customer: 'Rahul Singh',   items: 2, total: 640,  status: 'confirmed',  time: '7:45 PM' },
-  { id: 3, customer: 'Kavitha Nair',  items: 5, total: 2300, status: 'pending',    time: '7:51 PM' },
-  { id: 4, customer: 'Arun Kumar',    items: 1, total: 480,  status: 'delivered',  time: '6:15 PM' },
-  { id: 5, customer: 'Meera Rao',     items: 4, total: 1240, status: 'out_for_delivery', time: '7:10 PM' },
+  { id: 1, customer: 'Priya Sharma', items: 3, total: 1710, status: 'preparing', time: '7:32 PM' },
+  { id: 2, customer: 'Rahul Singh', items: 2, total: 640, status: 'confirmed', time: '7:45 PM' },
+  { id: 3, customer: 'Kavitha Nair', items: 5, total: 2300, status: 'pending', time: '7:51 PM' },
+  { id: 4, customer: 'Arun Kumar', items: 1, total: 480, status: 'delivered', time: '6:15 PM' },
+  { id: 5, customer: 'Meera Rao', items: 4, total: 1240, status: 'out_for_delivery', time: '7:10 PM' },
 ]
 
 const MENU_ITEMS = [
-  { id: 1, name: 'Dal Makhani',        category: 'Mains',    price: 480, available: true },
-  { id: 2, name: 'Butter Chicken',     category: 'Mains',    price: 560, available: true },
-  { id: 3, name: 'Seekh Kebab Platter',category: 'Starters', price: 720, available: false },
-  { id: 4, name: 'Garlic Naan',        category: 'Breads',   price: 80,  available: true },
+  { id: 1, name: 'Dal Makhani', category: 'Mains', price: 480, available: true },
+  { id: 2, name: 'Butter Chicken', category: 'Mains', price: 560, available: true },
+  { id: 3, name: 'Seekh Kebab Platter', category: 'Starters', price: 720, available: false },
+  { id: 4, name: 'Garlic Naan', category: 'Breads', price: 80, available: true },
 ]
 
 const STATS = [
   { label: "Today's Orders", value: '24', icon: '📋', color: '#c0392b' },
-  { label: "Revenue Today",  value: '₹18,420', icon: '💰', color: '#8b4513' },
-  { label: "Pending",        value: '3', icon: '⏳', color: '#e8a840' },
-  { label: "Delivered",      value: '21', icon: '✓', color: '#388e3c' },
+  { label: "Revenue Today", value: '₹18,420', icon: '💰', color: '#8b4513' },
+  { label: "Pending", value: '3', icon: '⏳', color: '#e8a840' },
+  { label: "Delivered", value: '21', icon: '✓', color: '#388e3c' },
 ]
 
 export default function Admin() {
@@ -42,7 +42,7 @@ export default function Admin() {
       <div className={styles.hero}>
         <div className="container">
           <h1 className={styles.title}>Admin Dashboard</h1>
-          <p className={styles.sub}>Saffron & Smoke · Operations Panel</p>
+          <p className={styles.sub}>Restaurant · Operations Panel</p>
         </div>
       </div>
 

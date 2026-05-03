@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { calcTotal, formatPrice } from '../utils/cartSlice'
@@ -10,14 +10,49 @@ export default function Checkout() {
   const { subtotal, tax, delivery, total } = calcTotal(items)
   const [step, setStep] = useState(1) // 1: Address, 2: Payment, 3: Confirm
   const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', pincode: '', payMethod: 'upi' })
+  const [errors, setErrors] = useState({})
   const [placed, setPlaced] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('savedAddress')
+    if (saved) {
+      try {
+        setForm(f => ({ ...f, ...JSON.parse(saved) }))
+      } catch (e) { /* ignore */ }
+    }
+  }, [])
 
   function handle(e) { setForm(f => ({ ...f, [e.target.name]: e.target.value })) }
 
+  function handleNext() {
+    const errs = {}
+    if (!form.name.trim()) errs.name = "Name is required"
+    if (!form.phone.trim()) errs.phone = "Phone is required"
+    else if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ''))) errs.phone = "Enter a valid 10-digit number"
+    if (!form.address.trim()) errs.address = "Address is required"
+    if (!form.city.trim()) errs.city = "City is required"
+    if (!form.pincode.trim()) errs.pincode = "Pincode is required"
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+    } else {
+      setErrors({})
+      localStorage.setItem('savedAddress', JSON.stringify({
+        name: form.name, phone: form.phone, address: form.address, city: form.city, pincode: form.pincode
+      }))
+      setStep(2)
+    }
+  }
+
   function placeOrder() {
-    setPlaced(true)
-    clearCart()
-    setTimeout(() => navigate('/profile'), 3000)
+    setIsSubmitting(true)
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setPlaced(true)
+      clearCart()
+      setTimeout(() => navigate('/profile'), 3000)
+    }, 2000)
   }
 
   if (placed) {
@@ -58,15 +93,35 @@ export default function Checkout() {
                   <h3 className={styles.cardTitle}>Delivery Address</h3>
                   <div className={styles.fields}>
                     <div className={styles.row2}>
-                      <div className={styles.field}><label>Full Name</label><input name="name" value={form.name} onChange={handle} placeholder="Priya Sharma" /></div>
-                      <div className={styles.field}><label>Phone</label><input name="phone" value={form.phone} onChange={handle} placeholder="+91 98400 00000" /></div>
+                      <div className={styles.field}>
+                        <label>Full Name</label>
+                        <input name="name" value={form.name} onChange={handle} placeholder="Priya Sharma" className={errors.name ? styles.inputError : ''} />
+                        {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+                      </div>
+                      <div className={styles.field}>
+                        <label>Phone</label>
+                        <input name="phone" value={form.phone} onChange={handle} placeholder="9840000000" className={errors.phone ? styles.inputError : ''} />
+                        {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
+                      </div>
                     </div>
-                    <div className={styles.field}><label>Address</label><input name="address" value={form.address} onChange={handle} placeholder="House No, Street, Area" /></div>
+                    <div className={styles.field}>
+                      <label>Address</label>
+                      <input name="address" value={form.address} onChange={handle} placeholder="House No, Street, Area" className={errors.address ? styles.inputError : ''} />
+                      {errors.address && <span className={styles.errorText}>{errors.address}</span>}
+                    </div>
                     <div className={styles.row2}>
-                      <div className={styles.field}><label>City</label><input name="city" value={form.city} onChange={handle} placeholder="Bengaluru" /></div>
-                      <div className={styles.field}><label>Pincode</label><input name="pincode" value={form.pincode} onChange={handle} placeholder="560034" /></div>
+                      <div className={styles.field}>
+                        <label>City</label>
+                        <input name="city" value={form.city} onChange={handle} placeholder="Bengaluru" className={errors.city ? styles.inputError : ''} />
+                        {errors.city && <span className={styles.errorText}>{errors.city}</span>}
+                      </div>
+                      <div className={styles.field}>
+                        <label>Pincode</label>
+                        <input name="pincode" value={form.pincode} onChange={handle} placeholder="560034" className={errors.pincode ? styles.inputError : ''} />
+                        {errors.pincode && <span className={styles.errorText}>{errors.pincode}</span>}
+                      </div>
                     </div>
-                    <button className="btn-primary" onClick={() => setStep(2)} style={{ marginTop: '8px' }}>Continue to Payment →</button>
+                    <button className="btn-primary" onClick={handleNext} style={{ marginTop: '8px' }}>Continue to Payment →</button>
                   </div>
                 </div>
               )}
@@ -104,15 +159,20 @@ export default function Checkout() {
                   </div>
                   <div className={styles.reviewItems}>
                     {items.map(i => (
-                      <div key={i.id} className={styles.reviewItem}>
-                        <span>{i.emoji} {i.name} × {i.qty}</span>
+                      <div key={i._id} className={styles.reviewItem}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <img src={i.image} alt={i.name} className={styles.reviewImg} />
+                          <span>{i.name} × {i.qty}</span>
+                        </div>
                         <span>{formatPrice(i.price * i.qty)}</span>
                       </div>
                     ))}
                   </div>
                   <div className={styles.btnRow}>
                     <button className="btn-secondary" onClick={() => setStep(2)}>← Back</button>
-                    <button className="btn-primary" onClick={placeOrder}>Place Order ✓</button>
+                    <button className="btn-primary" onClick={placeOrder} disabled={isSubmitting}>
+                      {isSubmitting ? 'Placing Order...' : 'Place Order ✓'}
+                    </button>
                   </div>
                 </div>
               )}
