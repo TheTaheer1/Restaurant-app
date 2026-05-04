@@ -5,7 +5,10 @@ import FoodCard from '../components/FoodCard'
 import ReviewCard from '../components/ReviewCard'
 import { MENU } from '../data/menu'
 import { REVIEWS } from '../data/reviews'
+import { USERS } from '../data/users'
 import { ORDERS } from '../data/orders'
+import { useCart } from '../context/CartContext'
+import { formatPrice } from '../utils/cartSlice'
 import styles from './Home.module.css'
 
 const HERO_SLIDES = [
@@ -53,62 +56,114 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 }
 
-const REVIEWS_PER_PAGE = 4
+const REVIEWS_PER_PAGE = 1
 
 function ReviewCarousel() {
   const totalPages = Math.ceil(REVIEWS.length / REVIEWS_PER_PAGE)
   const [page, setPage] = useState(0)
-  const pageReviews = REVIEWS.slice(page * REVIEWS_PER_PAGE, (page + 1) * REVIEWS_PER_PAGE)
+  const review = REVIEWS[page]
+  const user = USERS.find(u => u._id === review.userId)
+  const name = user ? user.name : "Guest"
 
   useEffect(() => {
-    const t = setInterval(() => setPage(p => (p + 1) % totalPages), 6000)
+    const t = setInterval(() => setPage(p => (p + 1) % totalPages), 7000)
     return () => clearInterval(t)
   }, [totalPages])
 
   return (
-    <div className={styles.reviewCarousel}>
+    <div className={styles.luxuryReviewWrap}>
       <AnimatePresence mode="wait">
         <motion.div
           key={page}
-          className={styles.testimonialGrid}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.45, ease: 'easeInOut' }}
+          className={styles.luxuryReviewCard}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.6 }}
         >
-          {pageReviews.map(review => (
-            <ReviewCard key={review._id} review={review} />
-          ))}
+          <div className={styles.luxuryReviewStars}>
+            {Array.from({ length: review.rating }).map((_, i) => (
+              <span key={i}>★</span>
+            ))}
+          </div>
+          
+          <blockquote className={styles.luxuryReviewQuote}>
+            "{review.comment}"
+          </blockquote>
+
+          <div className={styles.luxuryReviewAuthor}>
+            <div className={styles.luxuryAuthorLine} />
+            <div className={styles.luxuryAuthorInfo}>
+              <span className={styles.luxuryAuthorName}>{name}</span>
+              <span className={styles.luxuryAuthorMeta}>{review.createdAt}</span>
+            </div>
+          </div>
         </motion.div>
       </AnimatePresence>
 
-      <div className={styles.reviewControls}>
-        <button
-          className={styles.reviewArrow}
-          onClick={() => setPage(p => (p - 1 + totalPages) % totalPages)}
-          aria-label="Previous reviews"
-        >‹</button>
-        <div className={styles.reviewDots}>
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              className={`${styles.dot} ${i === page ? styles.dotActive : ''}`}
-              onClick={() => setPage(i)}
-            />
-          ))}
-        </div>
-        <button
-          className={styles.reviewArrow}
-          onClick={() => setPage(p => (p + 1) % totalPages)}
-          aria-label="Next reviews"
-        >›</button>
+      <div className={styles.luxuryReviewControls}>
+        {REVIEWS.map((_, i) => (
+          <button
+            key={i}
+            className={`${styles.luxuryDot} ${i === page ? styles.luxuryDotActive : ''}`}
+            onClick={() => setPage(i)}
+          />
+        ))}
       </div>
     </div>
   )
 }
 
+function MenuSlider({ items }) {
+  const [idx, setIdx] = useState(0)
+  const { addItem } = useCart()
+
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % items.length), 5000)
+    return () => clearInterval(t)
+  }, [items.length])
+
+  const item = items[idx]
+
+  return (
+    <div className={styles.sigMiniWrap}>
+      <button className={styles.sigMiniNav} onClick={() => setIdx(i => (i - 1 + items.length) % items.length)}>‹</button>
+      
+      <div className={styles.sigMiniCardContainer}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={idx}
+            className={styles.sigMiniCard}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className={styles.sigMiniImg}>
+              <img src={item.image} alt={item.name} />
+            </div>
+            <div className={styles.sigMiniContent}>
+              <div className={styles.sigBadge}>Signature Dish</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <h3 className={styles.sigMiniName}>{item.name}</h3>
+                <div className={styles.sigMiniPrice}>{formatPrice(item.price)}</div>
+              </div>
+              <p className={styles.sigMiniDesc}>{item.desc}</p>
+              <button className={styles.sigMiniAdd} onClick={() => addItem(item)}>
+                Add to Cart
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <button className={styles.sigMiniNav} onClick={() => setIdx(i => (i + 1) % items.length)}>›</button>
+    </div>
+  )
+}
+
 export default function Home() {
-  const topItems = getTopSelling();
+  const signatureItems = MENU.filter(m => m.isSignature);
   const navigate = useNavigate();
   const [slideIndex, setSlideIndex] = useState(0);
 
@@ -288,13 +343,7 @@ export default function Home() {
           </div>
           <Link to="/menu" className={styles.btnGhost} style={{ padding: '12px 28px', fontSize: '12px' }}>Full Menu →</Link>
         </motion.div>
-        <div className={styles.menuGrid}>
-          {topItems.map(item => (
-            <motion.div key={item._id} variants={fadeInUp}>
-              <FoodCard item={item} />
-            </motion.div>
-          ))}
-        </div>
+        <MenuSlider items={signatureItems} />
       </motion.section>
 
       {/* EXPERIENCE */}
@@ -407,7 +456,7 @@ export default function Home() {
       <footer id="contact" className={styles.footer}>
         <div className={styles.footerMain}>
           <div className={styles.footerCol}>
-            <div className={styles.footerBrand}>Restaurant</div>
+            <div className={styles.footerBrand} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Restaurant</div>
             <p style={{ maxWidth: '300px' }}>Where centuries-old recipes meet open-flame cooking. A taste of ancient India, reimagined for the modern palate.</p>
           </div>
           <div className={styles.footerCol}>

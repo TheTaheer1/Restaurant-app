@@ -1,33 +1,43 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import { calcTotal, formatPrice } from '../utils/cartSlice'
 import { ORDERS, addOrder } from '../data/orders'
+import ModalPortal from '../components/ModalPortal'
 import styles from './Checkout.module.css'
 
 export default function Checkout() {
   const { items, clearCart, discount, applyCoupon, removeCoupon, coupon } = useCart()
-  const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', pincode: '', payMethod: 'upi' })
+  const [form, setForm] = useState({ 
+    name: '', phone: '', 
+    flat: '', area: '', landmark: '', 
+    city: 'Bengaluru', pincode: '', payMethod: 'upi' 
+  })
   const [step, setStep] = useState(1)
   const navigate = useNavigate()
-  const { subtotal, tax, delivery, total } = calcTotal(items, discount, form.address)
+  const fullAddress = `${form.flat}, ${form.area}${form.landmark ? `, ${form.landmark}` : ''}`
+  const { subtotal, tax, delivery, total } = calcTotal(items, discount, fullAddress)
   const [errors, setErrors] = useState({})
   const [couponCode, setCouponCode] = useState('')
   const [couponMsg, setCouponMsg] = useState({ text: '', type: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDetecting, setIsDetecting] = useState(false)
+  const [showMap, setShowMap] = useState(false)
 
   const detectLocation = () => {
     setIsDetecting(true)
     setTimeout(() => {
       setForm(f => ({
         ...f,
-        address: 'Uniworld 2, Electronic City, Phase 1',
+        flat: 'Unit 402, Block B, Uniworld 2',
+        area: 'Electronic City Phase 1',
+        landmark: 'Near Wipro Gate 5',
         city: 'Bengaluru',
         pincode: '560100'
       }))
       setIsDetecting(false)
-      setErrors(e => ({ ...e, address: '', city: '', pincode: '' }))
+      setErrors({})
     }, 1200)
   }
 
@@ -38,6 +48,7 @@ export default function Checkout() {
   }
 
   const [isReady, setIsReady] = useState(false)
+  const [isOrdered, setIsOrdered] = useState(false)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('savedAddress')
@@ -50,10 +61,10 @@ export default function Checkout() {
   }, [])
 
   useEffect(() => {
-    if (isReady) {
+    if (isReady && !isOrdered) {
       sessionStorage.setItem('savedAddress', JSON.stringify(form))
     }
-  }, [form, isReady])
+  }, [form, isReady, isOrdered])
 
   function handle(e) { 
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -66,12 +77,13 @@ export default function Checkout() {
     if (!form.phone.trim()) errs.phone = "Phone is required"
     else if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ''))) errs.phone = "Enter a valid 10-digit number"
     
-    if (!form.address.trim()) errs.address = "Address is required"
-    else if (form.address.trim().length < 15) errs.address = "Please enter a detailed address (min 15 chars)"
-    else if (!form.address.trim().includes(' ') || form.address.trim().split(' ').length < 3) errs.address = "Please enter a valid street and area (e.g. 123 Main St, Indiranagar)"
+    if (!form.flat.trim()) errs.flat = "Flat/Building is required"
+    else if (form.flat.trim().length < 4) errs.flat = "Please enter a valid flat/building name"
+
+    if (!form.area.trim()) errs.area = "Area/Street is required"
+    else if (form.area.trim().length < 5) errs.area = "Please enter a valid area/street name"
     
     if (!form.city.trim()) errs.city = "City is required"
-    else if (!/^[a-zA-Z\s]+$/.test(form.city.trim())) errs.city = "City name should only contain letters"
     else if (form.city.trim().toLowerCase() !== 'bengaluru') errs.city = "Sorry, we only deliver in Bengaluru for now"
     
     const SERVICEABLE_PINCODES = ['560100', '560034', '560068', '560076', '560102', '560103', '560001', '560002']
@@ -81,11 +93,17 @@ export default function Checkout() {
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
+      // Auto-scroll to the first error field
+      setTimeout(() => {
+        const firstErrorKey = Object.keys(errs)[0]
+        const errorEl = document.getElementsByName(firstErrorKey)[0]
+        if (errorEl) {
+          errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          errorEl.focus()
+        }
+      }, 100)
     } else {
       setErrors({})
-      localStorage.setItem('savedAddress', JSON.stringify({
-        name: form.name, phone: form.phone, address: form.address, city: form.city, pincode: form.pincode
-      }))
       setStep(2)
     }
   }
@@ -102,8 +120,6 @@ export default function Checkout() {
     setTimeout(() => setCouponMsg({ text: '', type: '' }), 3000)
   }
 
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [orderId, setOrderId] = useState('')
   const QUOTES = [
     "\"One cannot think well, love well, sleep well, if one has not dined well.\"",
     "\"First we eat, then we do everything else.\"",
@@ -114,48 +130,85 @@ export default function Checkout() {
   const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)])
 
   function placeOrder() {
-    setIsSubmitting(true)
-    const newId = 'o' + Math.floor(Math.random() * 1000000)
-    setOrderId(newId)
-    
-    // Create new order object
-    const newOrder = {
-      _id: newId,
-      userId: 'u1', // Mock user
-      items: items.map(i => ({ menuItemId: i._id, name: i.name, qty: i.qty, price: i.price })),
-      totalAmount: total,
-      status: 'placed',
-      createdAt: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+    try {
+      setIsSubmitting(true)
+      const newId = 'o' + Math.floor(Math.random() * 1000000)
+      
+      const newOrder = {
+        _id: newId,
+        userId: 'u1',
+        items: [...items],
+        totalAmount: Number(total) || 0,
+        status: 'placed',
+        createdAt: new Date().toISOString()
+      }
+
+      // 1. Save to global store
+      addOrder(newOrder)
+      
+      // 2. Wipe the cart
+      clearCart()
+      
+      // 3. Clear local state
+      setIsOrdered(true)
+      setIsSubmitting(false)
+      
+      // 4. Cleanup storage
+      localStorage.removeItem('savedAddress')
+      sessionStorage.removeItem('savedAddress')
+      
+      // 5. Navigate to Success Page first
+      navigate(`/order-success/${newId}`)
+    } catch (err) {
+      console.error("CRITICAL CHECKOUT ERROR:", err)
+      alert("Order could not be processed. Please try again.")
+      setIsSubmitting(false)
+    }
+  }
+
+  const mapRef = useRef(null)
+  const [mapCenter, setMapCenter] = useState({ lat: 12.9716, lng: 77.5946 })
+
+  useEffect(() => {
+    if (showMap && !window.L) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+      document.head.appendChild(link)
+
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+      script.onload = initMap
+      document.head.appendChild(script)
+    } else if (showMap && window.L) {
+      setTimeout(initMap, 100)
     }
 
-    // Push to mock global data
-    addOrder(newOrder)
+    function initMap() {
+      if (!mapRef.current || !window.L) return
+      
+      // Cleanup previous instance
+      if (mapRef.current._leaflet_id) {
+        mapRef.current._leaflet_id = null
+        mapRef.current.innerHTML = ''
+      }
 
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setShowSuccess(true)
-      clearCart()
-      sessionStorage.removeItem('savedAddress')
-      setTimeout(() => navigate(`/order-tracking/${newId}`), 4000)
-    }, 2000)
-  }
+      const map = window.L.map(mapRef.current, {
+        center: [12.9716, 77.5946],
+        zoom: 15,
+        zoomControl: false
+      })
 
-  if (showSuccess) {
-    return (
-      <div className="page" style={{ background: 'var(--brown-darkest)' }}>
-        <div className={styles.successScreen}>
-          <div className={styles.successContent}>
-            <div className={styles.successIcon}>✓</div>
-            <h2 className={styles.successTitle}>Order Placed Successfully!</h2>
-            <div className={styles.quoteBox}>
-              <p className={styles.quoteText}>{quote}</p>
-            </div>
-            <p className={styles.successSub}>Preparing your meal with love...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map)
+
+      map.on('move', () => {
+        const center = map.getCenter()
+        setMapCenter({ lat: center.lat, lng: center.lng })
+      })
+    }
+  }, [showMap])
 
   return (
     <div className="page">
@@ -179,7 +232,13 @@ export default function Checkout() {
             <div className={styles.formCol}>
               {step === 1 && (
                 <div className={styles.card}>
-                  <h3 className={styles.cardTitle}>Delivery Address</h3>
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.cardTitle}>Delivery Address</h3>
+                    <button className={styles.mapTrigger} onClick={() => setShowMap(true)}>
+                      <span className={styles.mapIcon}>🗺️</span> Select on Map
+                    </button>
+                  </div>
+
                   <div className={styles.fields}>
                     <div className={styles.row2}>
                       <div className={styles.field}>
@@ -193,9 +252,10 @@ export default function Checkout() {
                         {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                       </div>
                     </div>
-                    <div className={styles.field}>
+
+                    <div className={styles.addressBox}>
                       <div className={styles.labelRow}>
-                        <label>Address</label>
+                        <label>Detailed Address</label>
                         <button 
                           className={styles.detectBtn} 
                           onClick={detectLocation}
@@ -204,9 +264,22 @@ export default function Checkout() {
                           {isDetecting ? '📍 Locating...' : '📍 Detect My Location'}
                         </button>
                       </div>
-                      <input name="address" value={form.address} onChange={handle} placeholder="House No, Street, Area" className={errors.address ? styles.inputError : ''} />
-                      {errors.address && <span className={styles.errorText}>{errors.address}</span>}
+                      
+                      <div className={styles.field}>
+                        <input name="flat" value={form.flat} onChange={handle} placeholder="Flat, House no., Building, Apartment" className={errors.flat ? styles.inputError : ''} />
+                        {errors.flat && <span className={styles.errorText}>{errors.flat}</span>}
+                      </div>
+
+                      <div className={styles.field}>
+                        <input name="area" value={form.area} onChange={handle} placeholder="Area, Colony, Street, Sector" className={errors.area ? styles.inputError : ''} />
+                        {errors.area && <span className={styles.errorText}>{errors.area}</span>}
+                      </div>
+
+                      <div className={styles.field}>
+                        <input name="landmark" value={form.landmark} onChange={handle} placeholder="Landmark (Optional)" />
+                      </div>
                     </div>
+
                     <div className={styles.row2}>
                       <div className={styles.field}>
                         <label>City</label>
@@ -219,7 +292,7 @@ export default function Checkout() {
                         {errors.pincode ? (
                           <span className={styles.errorText}>{errors.pincode}</span>
                         ) : (
-                          <span className={styles.hintText}>Serving Koramangala, E-City, HSR & Central Bengaluru</span>
+                          <span className={styles.hintText}>Serving Central Bengaluru, E-City, HSR</span>
                         )}
                       </div>
                     </div>
@@ -255,8 +328,16 @@ export default function Checkout() {
                   <h3 className={styles.cardTitle}>Review & Confirm</h3>
                   <div className={styles.reviewBlock}>
                     <div className={styles.reviewLabel}>Delivering to</div>
-                    <p>{form.name}, {form.phone}</p>
-                    <p>{form.address}, {form.city} - {form.pincode}</p>
+                    <p style={{ fontWeight: 600 }}>{form.name} · {form.phone}</p>
+                    <div className={styles.reviewAddress}>
+                       <span className={styles.addrIcon}>🏠</span>
+                       <div>
+                         <p>{form.flat}</p>
+                         <p>{form.area}</p>
+                         {form.landmark && <p className={styles.reviewLandmark}>Lndmrk: {form.landmark}</p>}
+                         <p>{form.city} - {form.pincode}</p>
+                       </div>
+                    </div>
                   </div>
                   <div className={styles.reviewBlock}>
                     <div className={styles.reviewLabel}>Payment</div>
@@ -327,6 +408,69 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+      <AnimatePresence>
+        {showMap && (
+          <ModalPortal>
+            <div className={styles.modalOverlay}>
+              <motion.div 
+                className={styles.mapModal}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              >
+                <div className={styles.modalHeader}>
+                  <div>
+                    <h3 className={styles.modalTitle}>Select Delivery Location</h3>
+                    <p className={styles.modalSub}>Move the map to place the pin on your doorstep</p>
+                  </div>
+                  <button className={styles.closeBtn} onClick={() => setShowMap(false)}>✕</button>
+                </div>
+
+                <div className={styles.mapContainer}>
+                  {/* Real Interactive Map */}
+                  <div ref={mapRef} className={styles.mapVisual}></div>
+                  
+                  {/* Center Pin Overlay */}
+                  <div className={styles.mapPinOverlay}>
+                    <div className={styles.mapPin}>📍</div>
+                    <div className={styles.mapPulse}></div>
+                  </div>
+                  
+                  <div className={styles.locationInfo}>
+                    <div className={styles.locIcon}>🏠</div>
+                    <div className={styles.locText}>
+                      <div className={styles.locMain}>Uniworld 2, Block B</div>
+                      <div className={styles.locSub}>
+                        Lat: {mapCenter.lat.toFixed(4)}, Lng: {mapCenter.lng.toFixed(4)}
+                        <br /> Bengaluru, Karnataka 560100
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.modalFooter}>
+                  <button className={styles.confirmBtn} onClick={() => {
+                    // Simulate fetching address for coordinates
+                    const areas = ['Electronic City Phase 1', 'Koramangala 4th Block', 'HSR Layout Sector 2', 'Indiranagar 12th Main'];
+                    const randomArea = areas[Math.floor(Math.random() * areas.length)];
+                    
+                    setForm(f => ({
+                      ...f,
+                      flat: `Unit ${Math.floor(Math.random() * 900 + 100)}, Block ${String.fromCharCode(65 + Math.floor(Math.random() * 6))}`,
+                      area: randomArea,
+                      city: 'Bengaluru',
+                      pincode: '560100'
+                    }));
+                    setShowMap(false);
+                  }}>
+                    Confirm Location & Proceed
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </ModalPortal>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

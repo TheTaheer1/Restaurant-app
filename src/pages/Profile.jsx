@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { formatOrderId, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
 import styles from './Profile.module.css'
@@ -7,6 +7,7 @@ import styles from './Profile.module.css'
 import { USERS } from '../data/users'
 import { ORDERS, saveOrders } from '../data/orders'
 import { REVIEWS, addReview, updateReview } from '../data/reviews'
+import ModalPortal from '../components/ModalPortal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function getInitials(name) {
@@ -23,8 +24,8 @@ export default function Profile() {
 
   const baseUser = USERS.find(u => u._id === 'u1') || USERS[0]
   const [currentUser, setCurrentUser] = useState({ ...baseUser })
-  
-  const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+  const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   const [, setTick] = useState(0)
 
   // Review Modal State
@@ -102,7 +103,7 @@ export default function Profile() {
         userToUpdate.email = formData.email
         userToUpdate.phone = formData.phone
       }
-      
+
       // Update local state to trigger header re-render
       setCurrentUser(prev => ({
         ...prev,
@@ -146,7 +147,7 @@ export default function Profile() {
               <div className={styles.ordersHeader}>
                 <h3 className={styles.tabTitle}>Recent Orders</h3>
                 {userOrders.length > 0 && (
-                  <button 
+                  <button
                     className={styles.clearBtn}
                     onClick={() => {
                       if (window.confirm('Are you sure you want to clear your order history?')) {
@@ -160,21 +161,32 @@ export default function Profile() {
                   </button>
                 )}
               </div>
-              {userOrders.length === 0 && <p style={{color: 'var(--text-muted)'}}>No orders found.</p>}
+              {userOrders.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-color)', margin: '20px 0' }}>
+                  <p style={{ color: 'var(--text-muted)', marginBottom: '20px', fontSize: '15px' }}>Your order history is empty. Ready to taste something delicious?</p>
+                  <Link to="/menu" className="btn-primary" style={{ padding: '12px 32px' }}>Order Now</Link>
+                </div>
+              )}
               {userOrders.map(order => {
                 const statusKey = order.status.toLowerCase()
-                const step = getStatusStep(statusKey)
-                const steps = ['Placed', 'Confirmed', 'Preparing', 'Picked Up', 'On the Way', 'Delivered']
                 return (
-                  <div key={order._id} className={styles.orderCard}>
+                  <div 
+                    key={order._id} 
+                    className={`${styles.orderCard} ${(order.status !== 'delivered' && order.status !== 'cancelled') ? styles.clickableCard : ''}`}
+                    onClick={() => {
+                      if (order.status !== 'delivered' && order.status !== 'cancelled') {
+                        navigate(`/order-tracking/${order._id}`)
+                      }
+                    }}
+                  >
                     <div className={styles.orderHeader}>
                       <div>
                         <div className={styles.orderId}>{formatOrderId(order._id.replace('o', ''))}</div>
                         <div className={styles.orderDate}>
                           {order.createdAt.includes(',') ? (
                             <>
-                              <div>{order.createdAt.split(',')[0]}</div>
-                              <div className={styles.orderTime}>{order.createdAt.split(',')[1]}</div>
+                              <span>{order.createdAt.split(',')[0]}</span>
+                              <span className={styles.orderTime}>{order.createdAt.split(',')[1]}</span>
                             </>
                           ) : (
                             order.createdAt
@@ -187,15 +199,15 @@ export default function Profile() {
                         </span>
                         <div className={styles.orderActions}>
                           {(order.status !== 'cancelled' && order.status !== 'delivered') && (
-                            <button 
+                            <button
                               className={styles.trackBtn}
-                              onClick={() => navigate(`/order-tracking/${order._id}`)}
+                              onClick={(e) => { e.stopPropagation(); navigate(`/order-tracking/${order._id}`) }}
                             >
                               Track Order
                             </button>
                           )}
                           {(order.status !== 'delivered' && order.status !== 'cancelled') && (
-                            <button 
+                            <button
                               className={styles.cancelOrderBtn}
                               onClick={() => {
                                 if (window.confirm('Are you sure you want to cancel this order?')) {
@@ -209,7 +221,7 @@ export default function Profile() {
                             </button>
                           )}
                           {(order.status === 'delivered' || order.status === 'cancelled') && (
-                            <button 
+                            <button
                               className={styles.reorderBtn}
                               onClick={() => {
                                 order.items.forEach(item => {
@@ -222,7 +234,7 @@ export default function Profile() {
                             </button>
                           )}
                           {order.status === 'delivered' && (
-                            <button 
+                            <button
                               className={styles.rateBtn}
                               onClick={() => {
                                 const existingReview = REVIEWS.find(r => r.orderId === order._id)
@@ -247,20 +259,6 @@ export default function Profile() {
                     </div>
                     <div className={styles.orderItems}>{order.items.map(i => `${i.name} × ${i.qty}`).join(' · ')}</div>
                     <div className={styles.orderTotal}>Total: ₹{order.totalAmount}</div>
-                    {/* Progress bar */}
-                    {order.status !== 'cancelled' && (
-                      <div className={styles.progress}>
-                        {steps.map((s, i) => (
-                          <div key={s} className={styles.progressStep}>
-                            <div className={`${styles.progressDot} ${i <= step ? styles.progressDotDone : ''}`} />
-                            <span className={`${styles.progressLabel} ${i <= step ? styles.progressLabelDone : ''}`}>{s}</span>
-                          </div>
-                        ))}
-                        <div className={styles.progressLine}>
-                          <div className={styles.progressFill} style={{ width: `${Math.min(step / 4 * 100, 100)}%` }} />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )
               })}
@@ -287,9 +285,9 @@ export default function Profile() {
                   <input name="city" value={formData.city} onChange={handleChange} />
                 </div>
               </div>
-              <button 
-                className="btn-primary" 
-                style={{ marginTop: '24px', opacity: isSaving ? 0.7 : 1 }} 
+              <button
+                className="btn-primary"
+                style={{ marginTop: '24px', opacity: isSaving ? 0.7 : 1 }}
                 onClick={handleSave}
                 disabled={isSaving}
               >
@@ -302,52 +300,54 @@ export default function Profile() {
 
       <AnimatePresence>
         {showReviewModal && (
-          <motion.div 
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+          <ModalPortal>
             <motion.div 
-              className={styles.modalContent}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              className={styles.modalOverlay}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              <div className={styles.modalHeader}>
-                <h2>{editingReviewId ? 'Edit Your Review' : 'Rate Your Order'}</h2>
-                <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}>✕</button>
-              </div>
-              <form onSubmit={handleReviewSubmit}>
-                <div className={styles.formGroup}>
-                  <label>Rating</label>
-                  <div className={styles.starRating}>
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <span 
-                        key={star} 
-                        className={star <= rating ? styles.starActive : styles.star}
-                        onClick={() => setRating(star)}
-                      >
-                        ★
-                      </span>
-                    ))}
+              <motion.div 
+                className={styles.modalContent}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+              >
+                <div className={styles.modalHeader}>
+                  <h2>{editingReviewId ? 'Edit Your Review' : 'Rate Your Order'}</h2>
+                  <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}>✕</button>
+                </div>
+                <form onSubmit={handleReviewSubmit}>
+                  <div className={styles.formGroup}>
+                    <label>Rating</label>
+                    <div className={styles.starRating}>
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <span 
+                          key={star} 
+                          className={star <= rating ? styles.starActive : styles.star}
+                          onClick={() => setRating(star)}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Comment</label>
-                  <textarea 
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Tell us about your food and experience..."
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn-primary" style={{width: '100%'}}>
-                  {editingReviewId ? 'Update Review' : 'Submit Review'}
-                </button>
-              </form>
+                  <div className={styles.formGroup}>
+                    <label>Comment</label>
+                    <textarea 
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="Tell us about your food and experience..."
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary" style={{width: '100%'}}>
+                    {editingReviewId ? 'Update Review' : 'Submit Review'}
+                  </button>
+                </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </ModalPortal>
         )}
       </AnimatePresence>
     </div>

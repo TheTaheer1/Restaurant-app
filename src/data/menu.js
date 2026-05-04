@@ -18,5 +18,8 @@ export const MENU = [
   { _id: "m17", name: "Spring Rolls", price: 130, category: "Chinese", isVeg: true, image: "https://via.placeholder.com/150", available: true },
   { _id: "m18", name: "Hakka Noodles", price: 160, category: "Chinese", isVeg: false, image: "https://via.placeholder.com/150", available: true },
   { _id: "m19", name: "Ice Cream Sundae", price: 120, category: "Desserts", isVeg: true, image: "https://via.placeholder.com/150", available: true },
-  { _id: "m20", name: "Gulab Jamun", price: 70, category: "Desserts", isVeg: true, image: "https://via.placeholder.com/150", available: true }
+  { _id: "m20", name: "Gulab Jamun", price: 70, category: "Desserts", isVeg: true, image: "https://via.placeholder.com/150", available: true },
+  { _id: "s1", name: "Tandoori Lobster", price: 1450, category: "Main Course", isVeg: false, image: "https://images.unsplash.com/photo-1553247407-23251ce81f59?w=600&q=80", available: true, isSignature: true, desc: "Fresh Atlantic lobster marinated in secret spices and finished in the clay oven." },
+  { _id: "s2", name: "Saffron Dum Biryani", price: 680, category: "Rice", isVeg: false, image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&q=80", available: true, isSignature: true, desc: "Aged Basmati rice cooked with tender lamb and premium Kashmiri saffron." },
+  { _id: "s3", name: "Gold Leaf Kulfi", price: 320, category: "Desserts", isVeg: true, image: "https://images.unsplash.com/photo-1505394033343-43adc6f446bb?w=600&q=80", available: true, isSignature: true, desc: "Traditional slow-churned milk ice cream topped with real 24k edible gold leaf." }
 ]

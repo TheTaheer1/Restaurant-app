@@ -12,7 +12,7 @@ const DEFAULT_ORDERS = [
 ]
 
 // Initialize from localStorage or defaults
-const getStoredOrders = () => {
+export const getStoredOrders = () => {
   const stored = localStorage.getItem('restapp_orders')
   return stored ? JSON.parse(stored) : DEFAULT_ORDERS
 }
@@ -26,4 +26,12 @@ export const saveOrders = () => {
 export const addOrder = (order) => {
   ORDERS.push(order)
   saveOrders()
+}
+
+export const updateOrderStatus = (orderId, newStatus) => {
+  const order = ORDERS.find(o => o._id === orderId)
+  if (order) {
+    order.status = newStatus
+    saveOrders()
+  }
 }

@@ -104,7 +104,11 @@
   font-size: 18px; font-weight: 700; color: var(--brown-cream);
   border-top: 2px solid var(--border-color); padding-top: 16px; margin-bottom: 20px;
 }
-.checkoutBtn { width: 100%; justify-content: center; padding: 14px; margin-bottom: 12px; }
+.checkoutBtn { 
+  width: 100%; display: flex; justify-content: center; align-items: center;
+  padding: 12px 20px; margin-bottom: 12px; font-size: 11px;
+  white-space: nowrap; letter-spacing: 1px;
+}
 .continueBtn {
   display: block; text-align: center; font-size: 13px;
   color: var(--text-muted); transition: color 0.2s;

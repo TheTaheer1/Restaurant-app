@@ -24,6 +24,14 @@ export default function Navbar() {
     }
   }
 
+  const handleHomeClick = (e) => {
+    setIsOpen(false)
+    if (location.pathname === '/') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
@@ -47,11 +55,11 @@ export default function Navbar() {
 
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
-      <Link to="/" className={styles.navLogo}>Restaurant</Link>
+      <Link to="/" onClick={handleHomeClick} className={styles.navLogo}>Restaurant</Link>
 
       {/* Desktop Links */}
       <ul className={`${styles.navLinks} ${styles.desktopOnly}`}>
-        <li><Link to="/">Home</Link></li>
+        <li><Link to="/" onClick={handleHomeClick}>Home</Link></li>
         <li><Link to="/menu">Menu</Link></li>
         <li><a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')}>Reviews</a></li>
         <li><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
@@ -98,11 +106,11 @@ export default function Navbar() {
               exit="closed"
             >
               <div className={styles.drawerHeader}>
-                <span className={styles.drawerBrand}>Restaurant</span>
+                <Link to="/" onClick={handleHomeClick} className={styles.drawerBrand}>Restaurant</Link>
               </div>
 
               <ul className={styles.mobileLinks}>
-                <motion.li variants={linkVariants}><Link to="/">Home</Link></motion.li>
+                <motion.li variants={linkVariants}><Link to="/" onClick={handleHomeClick}>Home</Link></motion.li>
                 <motion.li variants={linkVariants}><Link to="/menu">Menu</Link></motion.li>
                 <motion.li variants={linkVariants}><a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')}>Reviews</a></motion.li>
                 <motion.li variants={linkVariants}><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></motion.li>

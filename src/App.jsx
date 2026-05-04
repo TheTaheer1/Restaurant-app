@@ -1,5 +1,4 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
 import { CartProvider } from './context/CartContext'
 import Navbar from './components/Navbar'
@@ -10,6 +9,7 @@ import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
 import OrderTracking from './pages/OrderTracking'
+import Success from './pages/Success'
 
 export default function App() {
   const location = useLocation()
@@ -17,17 +17,16 @@ export default function App() {
   return (
     <CartProvider>
       <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/"         element={<AnimatedPage><Home /></AnimatedPage>} />
-          <Route path="/menu"     element={<AnimatedPage><Menu /></AnimatedPage>} />
-          <Route path="/cart"     element={<AnimatedPage><Cart /></AnimatedPage>} />
-          <Route path="/checkout" element={<AnimatedPage><Checkout /></AnimatedPage>} />
-          <Route path="/profile"  element={<AnimatedPage><Profile /></AnimatedPage>} />
-          <Route path="/admin"    element={<AnimatedPage><Admin /></AnimatedPage>} />
-          <Route path="/order-tracking/:orderId" element={<AnimatedPage><OrderTracking /></AnimatedPage>} />
-        </Routes>
-      </AnimatePresence>
+      <Routes>
+        <Route path="/"         element={<Home />} />
+        <Route path="/menu"     element={<Menu />} />
+        <Route path="/cart"     element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/profile"  element={<Profile />} />
+        <Route path="/admin"    element={<Admin />} />
+        <Route path="/order-success/:orderId" element={<Success />} />
+        <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+      </Routes>
     </CartProvider>
   )
 }

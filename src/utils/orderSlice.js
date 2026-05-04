@@ -17,6 +17,7 @@ export const STATUS_LABELS = {
   'on the way':      'On the Way',
   delivered:         'Delivered',
   cancelled:         'Cancelled',
+  pending:           'Pending',
 }
 
 export const STATUS_COLORS = {
@@ -27,6 +28,7 @@ export const STATUS_COLORS = {
   'on the way':      '#9c27b0',
   delivered:         '#4caf50',
   cancelled:         '#f44336',
+  pending:           '#ffc107',
 }
 
 export function getStatusStep(status) {

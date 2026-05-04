@@ -52,12 +52,20 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(state))
+    if (state.items.length === 0) {
+      sessionStorage.removeItem('savedAddress')
+      localStorage.removeItem('savedAddress')
+    }
   }, [state])
 
   const addItem    = (item)          => dispatch({ type: 'ADD_ITEM',    payload: item })
   const removeItem = (_id)           => dispatch({ type: 'REMOVE_ITEM', payload: _id })
   const updateQty  = (_id, qty)      => dispatch({ type: 'UPDATE_QTY',  payload: { _id, qty } })
-  const clearCart  = ()              => dispatch({ type: 'CLEAR_CART' })
+  const clearCart  = ()              => {
+    dispatch({ type: 'CLEAR_CART' })
+    sessionStorage.removeItem('savedAddress')
+    localStorage.removeItem('savedAddress')
+  }
   const toggleCart = ()              => dispatch({ type: 'TOGGLE_CART' })
   const applyCoupon = (code, discount) => dispatch({ type: 'APPLY_COUPON', payload: { code, discount } })
   const removeCoupon = ()            => dispatch({ type: 'REMOVE_COUPON' })
