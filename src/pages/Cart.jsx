@@ -26,7 +26,7 @@ export default function Cart() {
               <div className={styles.itemsHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span>Order Items</span>
-                  <Link to="/menu" className={styles.addMoreLink}>+ Add More Items</Link>
+                  {items.length > 0 && <Link to="/menu" className={styles.addMoreLink}>+ Add More Items</Link>}
                 </div>
                 {items.length > 0 && <button className={styles.clearBtn} onClick={clearCart}>Clear All</button>}
               </div>
