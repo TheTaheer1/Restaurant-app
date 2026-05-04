@@ -9,6 +9,7 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
+import OrderTracking from './pages/OrderTracking'
 
 export default function App() {
   const location = useLocation()
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/checkout" element={<AnimatedPage><Checkout /></AnimatedPage>} />
           <Route path="/profile"  element={<AnimatedPage><Profile /></AnimatedPage>} />
           <Route path="/admin"    element={<AnimatedPage><Admin /></AnimatedPage>} />
+          <Route path="/order-tracking/:orderId" element={<AnimatedPage><OrderTracking /></AnimatedPage>} />
         </Routes>
       </AnimatePresence>
     </CartProvider>

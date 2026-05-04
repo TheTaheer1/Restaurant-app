@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import FoodCard from '../components/FoodCard'
+import { FoodGridSkeleton } from '../components/Skeleton'
 import styles from './Menu.module.css'
 
 import { MENU } from '../data/menu'
@@ -14,6 +15,14 @@ export default function Menu() {
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [vegFilter, setVegFilter] = useState('all')
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    const t = setTimeout(() => setLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [activeCategory, search, vegFilter])
 
   const filtered = MENU.filter(item => {
     const matchCat = activeCategory === 'All' || item.category === activeCategory
@@ -88,7 +97,11 @@ export default function Menu() {
 
       <div className={styles.menuBody}>
         <div className="container">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className={styles.grid}>
+              <FoodGridSkeleton count={filtered.length || 8} />
+            </div>
+          ) : filtered.length === 0 ? (
             <div className={styles.empty}>
               <span>🍽️</span>
               <p>No dishes found. Try a different filter.</p>

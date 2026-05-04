@@ -13,11 +13,17 @@ export function calcDelivery(subtotal, freeThreshold = 500) {
   return subtotal >= freeThreshold ? 0 : 49
 }
 
-export function calcTotal(items) {
+export function calcTotal(items, discount = 0) {
   const subtotal = calcSubtotal(items)
   const tax      = calcTax(subtotal)
   const delivery = calcDelivery(subtotal)
-  return { subtotal, tax, delivery, total: subtotal + tax + delivery }
+  return { 
+    subtotal, 
+    tax, 
+    delivery, 
+    discount,
+    total: Math.max(0, subtotal + tax + delivery - discount) 
+  }
 }
 
 export function formatPrice(amount) {

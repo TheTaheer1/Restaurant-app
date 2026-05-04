@@ -1,0 +1,28 @@
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1f1308 25%, #2d1f10 50%, #1f1308 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+/* Common skeleton shapes */
+.skeletonText  { height: 12px; border-radius: 4px; margin-bottom: 8px; }
+.skeletonTitle { height: 20px; border-radius: 4px; margin-bottom: 12px; }
+.skeletonImg   { width: 100%; border-radius: 10px 10px 0 0; }
+.skeletonCircle { border-radius: 50%; flex-shrink: 0; }
+
+/* Food card skeleton */
+.foodCardSkeleton {
+  background: #1f1308;
+  border: 1px solid #2d1f10;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.foodCardSkeletonImg { height: 160px; }
+.foodCardSkeletonBody { padding: 14px; }

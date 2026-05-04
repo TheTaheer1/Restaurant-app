@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../context/CartContext'
 import styles from './Navbar.module.css'
 
@@ -29,6 +30,21 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Close menu on route change
+  useEffect(() => {
+    setIsOpen(false)
+  }, [location])
+
+  const menuVariants = {
+    closed: { x: '100%', transition: { type: 'spring', stiffness: 300, damping: 30 } },
+    opened: { x: 0, transition: { type: 'spring', stiffness: 300, damping: 30, staggerChildren: 0.1, delayChildren: 0.2 } }
+  }
+
+  const linkVariants = {
+    closed: { opacity: 0, x: 20 },
+    opened: { opacity: 1, x: 0 }
+  }
+
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
       <Link to="/" className={styles.navLogo}>Restaurant</Link>
@@ -40,6 +56,7 @@ export default function Navbar() {
         <li><a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')}>Reviews</a></li>
         <li><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
       </ul>
+
       <div className={styles.navRight}>
         <Link to="/profile" className={styles.iconBtn} aria-label="Profile">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
@@ -53,25 +70,58 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
-          className={styles.hamburger}
+          className={`${styles.hamburger} ${isOpen ? styles.hamburgerActive : ''}`}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle menu"
         >
-          <span className={isOpen ? styles.barOpen1 : styles.bar1}></span>
-          <span className={isOpen ? styles.barOpen2 : styles.bar2}></span>
-          <span className={isOpen ? styles.barOpen3 : styles.bar3}></span>
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
 
-      <div className={`${styles.mobileDrawer} ${isOpen ? styles.drawerOpen : ''}`}>
-        <ul className={styles.mobileLinks}>
-          <li><Link to="/" onClick={() => setIsOpen(false)}>Home</Link></li>
-          <li><Link to="/menu" onClick={() => setIsOpen(false)}>Menu</Link></li>
-          <li><a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')}>Reviews</a></li>
-          <li><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
-        </ul>
-        <a href="#reserve" onClick={(e) => handleNavClick(e, 'reserve')} className={styles.mobileCta}>Reserve a Table</a>
-      </div>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div 
+              className={styles.backdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div 
+              className={styles.mobileDrawer}
+              variants={menuVariants}
+              initial="closed"
+              animate="opened"
+              exit="closed"
+            >
+              <div className={styles.drawerHeader}>
+                <span className={styles.drawerBrand}>Restaurant</span>
+              </div>
+
+              <ul className={styles.mobileLinks}>
+                <motion.li variants={linkVariants}><Link to="/">Home</Link></motion.li>
+                <motion.li variants={linkVariants}><Link to="/menu">Menu</Link></motion.li>
+                <motion.li variants={linkVariants}><a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')}>Reviews</a></motion.li>
+                <motion.li variants={linkVariants}><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></motion.li>
+                <motion.li variants={linkVariants}><Link to="/profile">My Account</Link></motion.li>
+              </ul>
+
+              <div className={styles.drawerFooter}>
+                <motion.div variants={linkVariants} className={styles.drawerInfo}>
+                  <p>14 Koramangala High St, Bengaluru</p>
+                  <p>+91 98765 43210</p>
+                </motion.div>
+                <motion.div variants={linkVariants}>
+                  <a href="#reserve" onClick={(e) => handleNavClick(e, 'reserve')} className={styles.mobileCta}>Reserve a Table</a>
+                </motion.div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   )
 }

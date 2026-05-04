@@ -1,0 +1,92 @@
+.hero { background: linear-gradient(135deg, var(--brown-darkest), var(--brown-mid)); padding: 60px 0 40px; }
+.title { font-family: var(--font-display); font-size: 32px; color: var(--brown-cream); margin-bottom: 8px; }
+.orderId { color: #e8a84c; font-weight: 600; letter-spacing: 1px; }
+.backLink { color: rgba(253,245,232,0.6); text-decoration: none; font-size: 13px; margin-bottom: 24px; display: inline-block; }
+.backLink:hover { color: #e8a84c; }
+
+.body { padding: 40px 0 80px; background: var(--brown-darkest); }
+
+.trackingCard { background: var(--brown-dark); border-radius: var(--radius-lg); border: 1px solid var(--border-color); padding: 32px; margin-bottom: 24px; }
+
+.statusHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; border-bottom: 1px solid var(--border-color); padding-bottom: 24px; }
+.estLabel { display: block; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px; }
+.estValue { font-size: 28px; font-weight: 700; color: #e8a84c; }
+.currentStatus { font-size: 18px; font-weight: 600; color: var(--brown-cream); padding: 8px 16px; background: rgba(232, 168, 76, 0.1); border-radius: 20px; }
+
+.timeline { display: flex; flex-direction: column; gap: 40px; position: relative; padding-left: 40px; }
+.timeline::before { content: ''; position: absolute; left: 15px; top: 10px; bottom: 10px; width: 2px; background: var(--border-color); }
+
+.step { position: relative; display: flex; align-items: center; gap: 24px; transition: all 0.3s; opacity: 0.4; }
+.step.active { opacity: 1; }
+.step.done { opacity: 0.8; }
+
+.stepIcon { 
+  position: absolute; left: -40px; width: 32px; height: 32px; 
+  background: var(--brown-dark); border: 2px solid var(--border-color); 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+  font-size: 16px; z-index: 2; transition: all 0.3s;
+}
+.active .stepIcon { border-color: #e8a84c; background: #e8a84c; color: #1a1008; box-shadow: 0 0 15px rgba(232, 168, 76, 0.3); }
+.done .stepIcon { border-color: #388e3c; background: #388e3c; color: white; }
+
+.stepLabel { font-size: 16px; font-weight: 600; color: var(--brown-cream); margin-bottom: 4px; }
+.stepTime { font-size: 12px; color: var(--text-muted); }
+
+.mapMock { margin-top: 48px; background: #1a1008; border-radius: 12px; height: 180px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--border-color); }
+.mapPulse { width: 12px; height: 12px; background: #e8a84c; border-radius: 50%; position: relative; margin-bottom: 12px; }
+.mapPulse::after { content: ''; position: absolute; width: 100%; height: 100%; background: inherit; border-radius: inherit; animation: pulse 2s infinite; }
+.mapLabel { font-size: 13px; color: var(--text-muted); }
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+.helpCard { background: var(--brown-darkest); border: 1px dashed var(--border-color); border-radius: var(--radius-lg); padding: 32px; text-align: center; }
+.helpCard h3 { font-size: 18px; color: var(--brown-cream); margin-bottom: 12px; }
+.helpCard p { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+.btnSecondary {
+  background: #e8a84c; color: #1a1008; padding: 12px 24px;
+  border-radius: var(--radius-sm); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; border: none;
+  cursor: pointer; transition: background 0.2s; text-decoration: none;
+}
+.btnSecondary:hover { background: #d4913a; }
+
+.deliveredActions {
+  margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--border-color);
+  text-align: center; animation: fadeInUp 0.5s ease-out;
+}
+.deliveredActions h3 { color: var(--brown-cream); font-family: var(--font-display); font-size: 20px; margin-bottom: 24px; }
+.actionRow { display: flex; gap: 12px; justify-content: center; }
+
+.btnOutline {
+  background: none; border: 1px solid var(--border-color); color: var(--brown-cream);
+  padding: 12px 24px; border-radius: var(--radius-sm); font-size: 14px;
+  font-weight: 700; text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center;
+}
+.btnOutline:hover { border-color: #e8a84c; color: #e8a84c; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cancelledCard {
+  background: var(--brown-dark); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); padding: 60px 40px; text-align: center;
+}
+.cancelledIcon {
+  width: 64px; height: 64px; background: rgba(244, 67, 54, 0.1); color: var(--red-primary);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 24px; border: 2px solid var(--red-primary);
+}
+.cancelledCard h2 { color: var(--brown-cream); margin-bottom: 12px; }
+.cancelledCard p { color: var(--text-muted); margin-bottom: 24px; }
+
+@media (max-width: 480px) {
+  .statusHeader { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .estValue { font-size: 24px; }
+  .timeline { gap: 32px; }
+}

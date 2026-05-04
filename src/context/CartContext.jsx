@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer } from 'react'
 
 const CartContext = createContext(null)
 
-const initialState = { items: [], isOpen: false }
+const initialState = { items: [], isOpen: false, coupon: null, discount: 0 }
 
 function cartReducer(state, action) {
   switch (action.type) {
@@ -32,9 +32,13 @@ function cartReducer(state, action) {
       }
     }
     case 'CLEAR_CART':
-      return { ...state, items: [] }
+      return { ...state, items: [], coupon: null, discount: 0 }
     case 'TOGGLE_CART':
       return { ...state, isOpen: !state.isOpen }
+    case 'APPLY_COUPON':
+      return { ...state, coupon: action.payload.code, discount: action.payload.discount }
+    case 'REMOVE_COUPON':
+      return { ...state, coupon: null, discount: 0 }
     default:
       return state
   }
@@ -48,6 +52,8 @@ export function CartProvider({ children }) {
   const updateQty  = (_id, qty)      => dispatch({ type: 'UPDATE_QTY',  payload: { _id, qty } })
   const clearCart  = ()              => dispatch({ type: 'CLEAR_CART' })
   const toggleCart = ()              => dispatch({ type: 'TOGGLE_CART' })
+  const applyCoupon = (code, discount) => dispatch({ type: 'APPLY_COUPON', payload: { code, discount } })
+  const removeCoupon = ()            => dispatch({ type: 'REMOVE_COUPON' })
 
   const totalItems = state.items.reduce((sum, i) => sum + i.qty, 0)
   const totalPrice = state.items.reduce((sum, i) => sum + i.price * i.qty, 0)
@@ -56,6 +62,8 @@ export function CartProvider({ children }) {
     <CartContext.Provider value={{
       items: state.items,
       isOpen: state.isOpen,
+      coupon: state.coupon,
+      discount: state.discount,
       totalItems,
       totalPrice,
       addItem,
@@ -63,6 +71,8 @@ export function CartProvider({ children }) {
       updateQty,
       clearCart,
       toggleCart,
+      applyCoupon,
+      removeCoupon,
     }}>
       {children}
     </CartContext.Provider>

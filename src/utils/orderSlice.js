@@ -10,26 +10,28 @@ export const ORDER_STATUS = {
 }
 
 export const STATUS_LABELS = {
-  pending:           'Order Placed',
+  placed:            'Order Placed',
   confirmed:         'Confirmed',
-  preparing:         'Being Prepared',
-  out_for_delivery:  'Out for Delivery',
+  preparing:         'Preparing',
+  picked:            'Picked Up',
+  'on the way':      'On the Way',
   delivered:         'Delivered',
   cancelled:         'Cancelled',
 }
 
 export const STATUS_COLORS = {
-  pending:           '#e8a840',
+  placed:            '#e8a840',
   confirmed:         '#2196f3',
   preparing:         '#ff9800',
-  out_for_delivery:  '#9c27b0',
+  picked:            '#00bcd4',
+  'on the way':      '#9c27b0',
   delivered:         '#4caf50',
   cancelled:         '#f44336',
 }
 
 export function getStatusStep(status) {
-  const steps = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered']
-  return steps.indexOf(status)
+  const steps = ['placed', 'confirmed', 'preparing', 'picked', 'on the way', 'delivered']
+  return steps.indexOf(status.toLowerCase())
 }
 
 export function formatOrderId(id) {

@@ -2,17 +2,26 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { calcTotal, formatPrice } from '../utils/cartSlice'
+import { ORDERS, addOrder } from '../data/orders'
 import styles from './Checkout.module.css'
 
 export default function Checkout() {
-  const { items, clearCart } = useCart()
+  const { items, clearCart, discount, applyCoupon, removeCoupon, coupon } = useCart()
   const navigate = useNavigate()
-  const { subtotal, tax, delivery, total } = calcTotal(items)
+  const { subtotal, tax, delivery, total } = calcTotal(items, discount)
+  
   const [step, setStep] = useState(1) // 1: Address, 2: Payment, 3: Confirm
   const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', pincode: '', payMethod: 'upi' })
   const [errors, setErrors] = useState({})
-  const [placed, setPlaced] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponMsg, setCouponMsg] = useState({ text: '', type: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const VALID_COUPONS = {
+    'WELCOME50': 50,
+    'FIRST100': 100,
+    'SAVE200': 200
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem('savedAddress')
@@ -45,24 +54,67 @@ export default function Checkout() {
     }
   }
 
+  function handleCoupon() {
+    const code = couponCode.toUpperCase().trim()
+    if (VALID_COUPONS[code]) {
+      applyCoupon(code, VALID_COUPONS[code])
+      setCouponMsg({ text: `Coupon ${code} applied!`, type: 'success' })
+      setCouponCode('')
+    } else {
+      setCouponMsg({ text: 'Invalid coupon code', type: 'error' })
+    }
+    setTimeout(() => setCouponMsg({ text: '', type: '' }), 3000)
+  }
+
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [orderId, setOrderId] = useState('')
+  const QUOTES = [
+    "\"One cannot think well, love well, sleep well, if one has not dined well.\"",
+    "\"First we eat, then we do everything else.\"",
+    "\"Good food is the foundation of genuine happiness.\"",
+    "\"Laughter is brightest in the place where food is good.\"",
+    "\"Life is uncertain. Eat dessert first.\""
+  ]
+  const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)])
+
   function placeOrder() {
     setIsSubmitting(true)
+    const newId = 'o' + Math.floor(Math.random() * 1000000)
+    setOrderId(newId)
+    
+    // Create new order object
+    const newOrder = {
+      _id: newId,
+      userId: 'u1', // Mock user
+      items: items.map(i => ({ menuItemId: i._id, name: i.name, qty: i.qty, price: i.price })),
+      totalAmount: total,
+      status: 'placed',
+      createdAt: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+    }
+
+    // Push to mock global data
+    addOrder(newOrder)
+
     setTimeout(() => {
       setIsSubmitting(false)
-      setPlaced(true)
+      setShowSuccess(true)
       clearCart()
-      setTimeout(() => navigate('/profile'), 3000)
+      setTimeout(() => navigate(`/order-tracking/${newId}`), 4000)
     }, 2000)
   }
 
-  if (placed) {
+  if (showSuccess) {
     return (
-      <div className="page">
-        <div className={styles.success}>
-          <div className={styles.successIcon}>✓</div>
-          <h2>Order Placed!</h2>
-          <p>Your food is being prepared. We will update you shortly.</p>
-          <p className={styles.successSub}>Redirecting to your orders...</p>
+      <div className="page" style={{ background: 'var(--brown-darkest)' }}>
+        <div className={styles.successScreen}>
+          <div className={styles.successContent}>
+            <div className={styles.successIcon}>✓</div>
+            <h2 className={styles.successTitle}>Order Placed Successfully!</h2>
+            <div className={styles.quoteBox}>
+              <p className={styles.quoteText}>{quote}</p>
+            </div>
+            <p className={styles.successSub}>Preparing your meal with love...</p>
+          </div>
         </div>
       </div>
     )
@@ -186,8 +238,34 @@ export default function Checkout() {
                   <div className={styles.line}><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                   <div className={styles.line}><span>GST (5%)</span><span>{formatPrice(tax)}</span></div>
                   <div className={styles.line}><span>Delivery</span><span>{delivery === 0 ? 'FREE' : formatPrice(delivery)}</span></div>
+                  {discount > 0 && (
+                    <div className={`${styles.line} ${styles.discountLine}`}>
+                      <span>Discount ({coupon})</span>
+                      <span>-{formatPrice(discount)}</span>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.totalLine}><span>Total</span><span>{formatPrice(total)}</span></div>
+                
+                {/* Coupon Input */}
+                <div className={styles.couponSection}>
+                  <div className={styles.couponInputWrap}>
+                    <input 
+                      placeholder="Enter Coupon (WELCOME50)" 
+                      value={couponCode}
+                      onChange={e => setCouponCode(e.target.value)}
+                    />
+                    <button onClick={handleCoupon}>Apply</button>
+                  </div>
+                  {couponMsg.text && (
+                    <div className={`${styles.couponMsg} ${styles[couponMsg.type]}`}>
+                      {couponMsg.text}
+                    </div>
+                  )}
+                  {coupon && (
+                    <button className={styles.removeCoupon} onClick={removeCoupon}>Remove {coupon}</button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

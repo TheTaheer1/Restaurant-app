@@ -89,5 +89,56 @@
 .success p { font-size: 16px; color: var(--text-secondary); }
 .successSub { font-size: 13px; color: var(--text-muted); }
 
+.discountLine { color: #22c55e !important; font-weight: 600; }
+.couponSection { margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border-color); }
+.couponInputWrap { display: flex; gap: 8px; }
+.couponInputWrap input { 
+  flex: 1; background: var(--brown-dark); border: 1.5px solid var(--border-color); 
+  border-radius: var(--radius-sm); padding: 8px 12px; color: #fff; font-size: 11px; 
+}
+.couponInputWrap input::placeholder { color: rgba(255,255,255,0.7); }
+.couponInputWrap button { 
+  background: #e8a84c; color: #1a1008; border: none; 
+  padding: 8px 20px; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; font-weight: 700;
+  transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.couponInputWrap button:hover { background: #d4913a; transform: translateY(-1px); }
+.couponMsg { font-size: 11px; margin-top: 8px; font-weight: 500; }
+.couponMsg.success { color: #22c55e; }
+.couponMsg.error { color: var(--red-primary); }
+.removeCoupon { 
+  background: none; border: none; color: var(--red-primary); font-size: 11px; 
+  cursor: pointer; margin-top: 8px; text-decoration: underline; font-weight: 600;
+}
+
+/* SUCCESS SCREEN */
+.successScreen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 80vh; text-align: center; padding: 20px;
+}
+.successContent { max-width: 600px; animation: fadeIn 0.8s ease-out; }
+.successIcon {
+  width: 80px; height: 80px; background: #388e3c; color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin: 0 auto 24px; box-shadow: 0 10px 30px rgba(56, 142, 60, 0.3);
+}
+.successTitle { font-family: var(--font-display); font-size: 32px; color: var(--brown-cream); margin-bottom: 32px; }
+
+.quoteBox {
+  background: rgba(232, 168, 76, 0.05); border-left: 4px solid #e8a84c;
+  padding: 32px; margin-bottom: 40px; border-radius: 4px;
+}
+.quoteText { 
+  font-family: 'Playfair Display', serif; font-size: 22px; 
+  font-style: italic; color: #f5ede0; line-height: 1.6;
+}
+
+.successSub { font-size: 14px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summaryCol { position: static; } }
 @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } .steps { gap: 8px; } .step::after { display: none; } }

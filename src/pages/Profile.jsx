@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
 import { formatOrderId, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
 import styles from './Profile.module.css'
 
 import { USERS } from '../data/users'
-import { ORDERS } from '../data/orders'
+import { ORDERS, saveOrders } from '../data/orders'
+import { REVIEWS, addReview, updateReview } from '../data/reviews'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function getInitials(name) {
   if (!name) return ''
@@ -14,11 +18,66 @@ function getInitials(name) {
 
 export default function Profile() {
   const [tab, setTab] = useState('orders')
+  const navigate = useNavigate()
+  const { addItem } = useCart()
 
   const baseUser = USERS.find(u => u._id === 'u1') || USERS[0]
   const [currentUser, setCurrentUser] = useState({ ...baseUser })
   
   const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+  const [, setTick] = useState(0)
+
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [selectedOrderId, setSelectedOrderId] = useState(null)
+  const [rating, setRating] = useState(5)
+  const [comment, setComment] = useState('')
+  const [editingReviewId, setEditingReviewId] = useState(null)
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault()
+    if (editingReviewId) {
+      updateReview(editingReviewId, { rating, comment })
+      alert('Review updated successfully!')
+    } else {
+      const newReview = {
+        _id: 'r' + Date.now(),
+        userId: currentUser._id,
+        orderId: selectedOrderId,
+        rating,
+        comment,
+        createdAt: new Date().toISOString().split('T')[0]
+      }
+      addReview(newReview)
+      alert('Thank you for your review!')
+    }
+    setShowReviewModal(false)
+    setRating(5)
+    setComment('')
+    setEditingReviewId(null)
+  }
+
+  // Mock real-time status updates for orders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let changed = false
+      ORDERS.forEach(order => {
+        if (order.status !== 'delivered' && order.status !== 'cancelled') {
+          const statusFlow = ['placed', 'confirmed', 'preparing', 'picked', 'on the way', 'delivered']
+          const currentIdx = statusFlow.indexOf(order.status.toLowerCase())
+          if (currentIdx < statusFlow.length - 1) {
+            order.status = statusFlow[currentIdx + 1]
+            changed = true
+          }
+        }
+      })
+      if (changed) {
+        setTick(t => t + 1)
+        saveOrders()
+      }
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   const [formData, setFormData] = useState({
     name: currentUser.name,
@@ -84,21 +143,107 @@ export default function Profile() {
         <div className="container">
           {tab === 'orders' && (
             <div className={styles.orders}>
+              <div className={styles.ordersHeader}>
+                <h3 className={styles.tabTitle}>Recent Orders</h3>
+                {userOrders.length > 0 && (
+                  <button 
+                    className={styles.clearBtn}
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to clear your order history?')) {
+                        ORDERS.length = 0
+                        saveOrders()
+                        setTick(t => t + 1)
+                      }
+                    }}
+                  >
+                    Clear History
+                  </button>
+                )}
+              </div>
               {userOrders.length === 0 && <p style={{color: 'var(--text-muted)'}}>No orders found.</p>}
               {userOrders.map(order => {
                 const statusKey = order.status.toLowerCase()
                 const step = getStatusStep(statusKey)
-                const steps = ['Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered']
+                const steps = ['Placed', 'Confirmed', 'Preparing', 'Picked Up', 'On the Way', 'Delivered']
                 return (
                   <div key={order._id} className={styles.orderCard}>
                     <div className={styles.orderHeader}>
                       <div>
                         <div className={styles.orderId}>{formatOrderId(order._id.replace('o', ''))}</div>
-                        <div className={styles.orderDate}>{order.createdAt}</div>
+                        <div className={styles.orderDate}>
+                          {order.createdAt.includes(',') ? (
+                            <>
+                              <div>{order.createdAt.split(',')[0]}</div>
+                              <div className={styles.orderTime}>{order.createdAt.split(',')[1]}</div>
+                            </>
+                          ) : (
+                            order.createdAt
+                          )}
+                        </div>
                       </div>
-                      <span className={styles.statusPill} style={{ background: STATUS_COLORS[statusKey] + '22', color: STATUS_COLORS[statusKey] }}>
-                        {STATUS_LABELS[statusKey] || order.status}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                        <span className={styles.statusPill} style={{ background: STATUS_COLORS[statusKey] + '22', color: STATUS_COLORS[statusKey] }}>
+                          {STATUS_LABELS[statusKey] || order.status}
+                        </span>
+                        <div className={styles.orderActions}>
+                          {(order.status !== 'cancelled' && order.status !== 'delivered') && (
+                            <button 
+                              className={styles.trackBtn}
+                              onClick={() => navigate(`/order-tracking/${order._id}`)}
+                            >
+                              Track Order
+                            </button>
+                          )}
+                          {(order.status !== 'delivered' && order.status !== 'cancelled') && (
+                            <button 
+                              className={styles.cancelOrderBtn}
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to cancel this order?')) {
+                                  order.status = 'cancelled'
+                                  saveOrders()
+                                  setTick(t => t + 1)
+                                }
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                          {(order.status === 'delivered' || order.status === 'cancelled') && (
+                            <button 
+                              className={styles.reorderBtn}
+                              onClick={() => {
+                                order.items.forEach(item => {
+                                  addItem({ _id: item.menuItemId, name: item.name, price: item.price, image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100' })
+                                })
+                                navigate('/cart')
+                              }}
+                            >
+                              Reorder
+                            </button>
+                          )}
+                          {order.status === 'delivered' && (
+                            <button 
+                              className={styles.rateBtn}
+                              onClick={() => {
+                                const existingReview = REVIEWS.find(r => r.orderId === order._id)
+                                setSelectedOrderId(order._id)
+                                if (existingReview) {
+                                  setRating(existingReview.rating)
+                                  setComment(existingReview.comment)
+                                  setEditingReviewId(existingReview._id)
+                                } else {
+                                  setRating(5)
+                                  setComment('')
+                                  setEditingReviewId(null)
+                                }
+                                setShowReviewModal(true)
+                              }}
+                            >
+                              {REVIEWS.some(r => r.orderId === order._id) ? 'Edit Review' : 'Rate Order'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className={styles.orderItems}>{order.items.map(i => `${i.name} × ${i.qty}`).join(' · ')}</div>
                     <div className={styles.orderTotal}>Total: ₹{order.totalAmount}</div>
@@ -154,6 +299,57 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {showReviewModal && (
+          <motion.div 
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className={styles.modalContent}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className={styles.modalHeader}>
+                <h2>{editingReviewId ? 'Edit Your Review' : 'Rate Your Order'}</h2>
+                <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}>✕</button>
+              </div>
+              <form onSubmit={handleReviewSubmit}>
+                <div className={styles.formGroup}>
+                  <label>Rating</label>
+                  <div className={styles.starRating}>
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span 
+                        key={star} 
+                        className={star <= rating ? styles.starActive : styles.star}
+                        onClick={() => setRating(star)}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Comment</label>
+                  <textarea 
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Tell us about your food and experience..."
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary" style={{width: '100%'}}>
+                  {editingReviewId ? 'Update Review' : 'Submit Review'}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

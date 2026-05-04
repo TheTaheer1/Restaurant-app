@@ -1,10 +1,15 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 
-const animations = {
-  initial: { opacity: 0, y: 15 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -15 }
+const pageVariants = {
+  initial:  { opacity: 0, x: 32, filter: 'blur(4px)' },
+  animate:  { opacity: 1, x: 0,  filter: 'blur(0px)' },
+  exit:     { opacity: 0, x: -24, filter: 'blur(2px)' },
+}
+
+const pageTransition = {
+  duration: 0.38,
+  ease: [0.25, 0.46, 0.45, 0.94],
 }
 
 export default function AnimatedPage({ children, className = '' }) {
@@ -15,11 +20,12 @@ export default function AnimatedPage({ children, className = '' }) {
   return (
     <motion.div
       className={className}
-      variants={animations}
+      variants={pageVariants}
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={pageTransition}
+      style={{ willChange: 'transform, opacity' }}
     >
       {children}
     </motion.div>
