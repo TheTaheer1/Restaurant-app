@@ -2,28 +2,28 @@
   background: var(--brown-dark);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 28px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
   transition: box-shadow 0.25s, transform 0.25s;
   height: 100%;
 }
 .card:hover { 
   box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 .stars {
   color: var(--brown-light);
-  font-size: 14px;
-  letter-spacing: 2px;
-  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
 
 .text {
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--brown-pale);
   font-style: italic;
   flex: 1;
@@ -33,14 +33,14 @@
 .author {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-top: 16px;
+  gap: 8px;
+  padding-top: 8px;
   margin-top: auto;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--brown-darkest), #2d1f10);
   border: 1px solid var(--brown-light);
@@ -49,7 +49,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 11px;
   flex-shrink: 0;
 }
 
@@ -69,12 +69,12 @@
 }
 
 /* RESPONSIVE */
-@media (max-width: 480px) {
-  .card { padding: 16px; gap: 10px; border-radius: var(--radius-sm); }
-  .stars { font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
+@media (max-width: 768px) {
+  .card { padding: 10px 12px; gap: 5px; }
+  .stars { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 3px; }
   .text { font-size: 10px; line-height: 1.5; }
-  .author { padding-top: 10px; gap: 8px; }
-  .avatar { width: 28px; height: 28px; font-size: 11px; }
-  .name { font-size: 9px; letter-spacing: 0.5px; }
-  .meta { font-size: 8px; margin-top: 2px; }
+  .author { padding-top: 6px; gap: 6px; }
+  .avatar { width: 22px; height: 22px; font-size: 9px; }
+  .name { font-size: 8px; letter-spacing: 0.5px; }
+  .meta { font-size: 7px; margin-top: 1px; }
 }

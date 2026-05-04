@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import FoodCard from '../components/FoodCard'
 import styles from './Menu.module.css'
 
@@ -7,10 +8,12 @@ import { MENU } from '../data/menu'
 const CATEGORIES = ['All', ...new Set(MENU.map(i => i.category))]
 
 export default function Menu() {
-  const [activeCategory, setActiveCategory] = useState('All')
+  const location = useLocation()
+  const initialCategory = location.state?.category || 'All'
+  const [activeCategory, setActiveCategory] = useState(initialCategory)
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [vegFilter, setVegFilter] = useState('all') // 'all' | 'veg' | 'nonveg'
+  const [vegFilter, setVegFilter] = useState('all')
 
   const filtered = MENU.filter(item => {
     const matchCat = activeCategory === 'All' || item.category === activeCategory
