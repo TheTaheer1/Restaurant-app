@@ -43,6 +43,17 @@
 .inputError { border-color: var(--red-primary) !important; }
 .errorText { font-size: 11px; color: var(--red-primary); margin-top: 2px; }
 
+.labelRow { display: flex; justify-content: space-between; align-items: center; }
+.labelRow label { margin-bottom: 0; }
+.detectBtn { 
+  background: none; border: none; color: #e8a84c; font-size: 11px; 
+  font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+  display: flex; align-items: center; gap: 4px; padding: 0;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.detectBtn:hover { opacity: 0.8; }
+.detectBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .payOptions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 .payOption {
   display: flex; align-items: center; gap: 14px;

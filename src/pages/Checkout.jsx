@@ -7,15 +7,29 @@ import styles from './Checkout.module.css'
 
 export default function Checkout() {
   const { items, clearCart, discount, applyCoupon, removeCoupon, coupon } = useCart()
-  const navigate = useNavigate()
-  const { subtotal, tax, delivery, total } = calcTotal(items, discount)
-  
-  const [step, setStep] = useState(1) // 1: Address, 2: Payment, 3: Confirm
   const [form, setForm] = useState({ name: '', phone: '', address: '', city: '', pincode: '', payMethod: 'upi' })
+  const [step, setStep] = useState(1)
+  const navigate = useNavigate()
+  const { subtotal, tax, delivery, total } = calcTotal(items, discount, form.address)
   const [errors, setErrors] = useState({})
   const [couponCode, setCouponCode] = useState('')
   const [couponMsg, setCouponMsg] = useState({ text: '', type: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDetecting, setIsDetecting] = useState(false)
+
+  const detectLocation = () => {
+    setIsDetecting(true)
+    setTimeout(() => {
+      setForm(f => ({
+        ...f,
+        address: 'Uniworld 2, Electronic City, Phase 1',
+        city: 'Bengaluru',
+        pincode: '560100'
+      }))
+      setIsDetecting(false)
+      setErrors(e => ({ ...e, address: '', city: '', pincode: '' }))
+    }, 1200)
+  }
 
   const VALID_COUPONS = {
     'WELCOME50': 50,
@@ -36,12 +50,19 @@ export default function Checkout() {
 
   function handleNext() {
     const errs = {}
-    if (!form.name.trim()) errs.name = "Name is required"
+    if (!form.name.trim() || form.name.trim().length < 3) errs.name = "Full name must be at least 3 characters"
+    
     if (!form.phone.trim()) errs.phone = "Phone is required"
     else if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ''))) errs.phone = "Enter a valid 10-digit number"
+    
     if (!form.address.trim()) errs.address = "Address is required"
-    if (!form.city.trim()) errs.city = "City is required"
+    else if (form.address.trim().length < 15) errs.address = "Please enter a detailed address (min 15 chars)"
+    else if (!form.address.trim().includes(' ') || form.address.trim().split(' ').length < 3) errs.address = "Please enter a valid street and area (e.g. 123 Main St, Indiranagar)"
+    
+    if (!form.city.trim() || form.city.trim().length < 3) errs.city = "Enter a valid city name"
+    
     if (!form.pincode.trim()) errs.pincode = "Pincode is required"
+    else if (!/^\d{6}$/.test(form.pincode.trim())) errs.pincode = "Enter a valid 6-digit pincode"
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
@@ -157,7 +178,16 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div className={styles.field}>
-                      <label>Address</label>
+                      <div className={styles.labelRow}>
+                        <label>Address</label>
+                        <button 
+                          className={styles.detectBtn} 
+                          onClick={detectLocation}
+                          disabled={isDetecting}
+                        >
+                          {isDetecting ? '📍 Locating...' : '📍 Detect My Location'}
+                        </button>
+                      </div>
                       <input name="address" value={form.address} onChange={handle} placeholder="House No, Street, Area" className={errors.address ? styles.inputError : ''} />
                       {errors.address && <span className={styles.errorText}>{errors.address}</span>}
                     </div>
@@ -237,7 +267,10 @@ export default function Checkout() {
                 <div className={styles.lines}>
                   <div className={styles.line}><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                   <div className={styles.line}><span>GST (5%)</span><span>{formatPrice(tax)}</span></div>
-                  <div className={styles.line}><span>Delivery</span><span>{delivery === 0 ? 'FREE' : formatPrice(delivery)}</span></div>
+                  <div className={styles.line}>
+                    <span>Delivery</span>
+                    <span>{delivery === 0 ? (subtotal === 0 ? formatPrice(0) : 'FREE') : formatPrice(delivery)}</span>
+                  </div>
                   {discount > 0 && (
                     <div className={`${styles.line} ${styles.discountLine}`}>
                       <span>Discount ({coupon})</span>

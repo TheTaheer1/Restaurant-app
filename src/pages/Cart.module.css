@@ -82,7 +82,7 @@
 .removeBtn:hover { color: var(--red-primary); background: var(--red-light); }
 
 /* SUMMARY */
-.summaryCol { position: sticky; top: calc(68px + 24px); align-self: start; }
+.summaryCol { position: sticky; top: calc(68px + 24px); align-self: start; margin-top: 38px; }
 .summary {
   background: var(--brown-dark); border: 1px solid var(--border-color);
   border-radius: var(--radius-lg); padding: 24px;

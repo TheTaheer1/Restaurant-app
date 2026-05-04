@@ -73,7 +73,12 @@ export default function Cart() {
                   <div className={styles.line}><span>GST (5%)</span><span>{formatPrice(tax)}</span></div>
                   <div className={styles.line}>
                     <span>Delivery</span>
-                    <span>{delivery === 0 ? <span className={styles.free}>FREE</span> : formatPrice(delivery)}</span>
+                    <span>
+                      {delivery === 0 
+                        ? (subtotal === 0 ? formatPrice(0) : <span className={styles.free}>FREE</span>) 
+                        : formatPrice(delivery)
+                      }
+                    </span>
                   </div>
                   {delivery > 0 && (
                     <p className={styles.deliveryNote}>Add {formatPrice(500 - subtotal)} more for free delivery</p>

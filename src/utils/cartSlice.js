@@ -9,14 +9,21 @@ export function calcTax(subtotal, rate = 0.05) {
   return subtotal * rate
 }
 
-export function calcDelivery(subtotal, freeThreshold = 500) {
-  return subtotal >= freeThreshold ? 0 : 49
+export function calcDelivery(subtotal, address = '', freeThreshold = 500) {
+  if (subtotal === 0) return 0
+  if (subtotal >= freeThreshold) return 0
+  
+  const addr = address.toLowerCase()
+  if (addr.includes('electronic city') || addr.includes('uniworld')) return 65 // Far zone
+  if (addr.includes('koramangala') || addr.includes('hsr')) return 25 // Near zone
+  
+  return 45 // Default zone
 }
 
-export function calcTotal(items, discount = 0) {
+export function calcTotal(items, discount = 0, address = '') {
   const subtotal = calcSubtotal(items)
   const tax      = calcTax(subtotal)
-  const delivery = calcDelivery(subtotal)
+  const delivery = calcDelivery(subtotal, address)
   return { 
     subtotal, 
     tax, 
