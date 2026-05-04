@@ -26,6 +26,12 @@
   font-weight: 600; transition: color 0.2s;
 }
 .clearBtn:hover { color: var(--red-deep); }
+.addMoreLink {
+  color: #e8a84c; font-size: 12px; font-weight: 600; text-decoration: none;
+  background: rgba(232, 168, 76, 0.1); padding: 4px 12px; border-radius: 100px;
+  transition: all 0.2s; margin-left: 4px;
+}
+.addMoreLink:hover { background: #e8a84c; color: #1a1008; }
 
 .items { display: flex; flex-direction: column; gap: 12px; }
 

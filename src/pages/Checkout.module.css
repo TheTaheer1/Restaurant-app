@@ -42,6 +42,7 @@
 .field input:focus { border-color: var(--brown-light); }
 .inputError { border-color: var(--red-primary) !important; }
 .errorText { font-size: 11px; color: var(--red-primary); margin-top: 2px; }
+.hintText { font-size: 10px; color: var(--text-muted); margin-top: 4px; opacity: 0.8; font-style: italic; }
 
 .labelRow { display: flex; justify-content: space-between; align-items: center; }
 .labelRow label { margin-bottom: 0; }
@@ -53,6 +54,14 @@
 }
 .detectBtn:hover { opacity: 0.8; }
 .detectBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.divider { color: var(--border-color); font-size: 10px; margin: 0 4px; opacity: 0.5; }
+.clearFormBtn {
+  background: none; border: none; color: var(--text-muted); font-size: 11px;
+  font-weight: 600; cursor: pointer; transition: color 0.2s;
+  display: flex; align-items: center; gap: 4px; padding: 0;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.clearFormBtn:hover { color: var(--red-primary); }
 
 .payOptions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 .payOption {
@@ -68,7 +77,7 @@
 .paySelected { border-color: var(--brown-light) !important; background: rgba(232, 168, 76, 0.1) !important; color: var(--brown-cream) !important; }
 .payIcon { font-size: 22px; }
 
-.btnRow { display: flex; gap: 12px; flex-wrap: wrap; }
+.btnRow { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 
 .reviewBlock { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
 .reviewLabel { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--red-primary); font-weight: 700; margin-bottom: 8px; }

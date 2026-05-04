@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { calcTotal, formatPrice } from '../utils/cartSlice'
@@ -37,16 +37,27 @@ export default function Checkout() {
     'SAVE200': 200
   }
 
+  const [isReady, setIsReady] = useState(false)
+
   useEffect(() => {
-    const saved = localStorage.getItem('savedAddress')
+    const saved = sessionStorage.getItem('savedAddress')
     if (saved) {
       try {
-        setForm(f => ({ ...f, ...JSON.parse(saved) }))
+        setForm(JSON.parse(saved))
       } catch (e) { /* ignore */ }
     }
+    setIsReady(true)
   }, [])
 
-  function handle(e) { setForm(f => ({ ...f, [e.target.name]: e.target.value })) }
+  useEffect(() => {
+    if (isReady) {
+      sessionStorage.setItem('savedAddress', JSON.stringify(form))
+    }
+  }, [form, isReady])
+
+  function handle(e) { 
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+  }
 
   function handleNext() {
     const errs = {}
@@ -59,10 +70,14 @@ export default function Checkout() {
     else if (form.address.trim().length < 15) errs.address = "Please enter a detailed address (min 15 chars)"
     else if (!form.address.trim().includes(' ') || form.address.trim().split(' ').length < 3) errs.address = "Please enter a valid street and area (e.g. 123 Main St, Indiranagar)"
     
-    if (!form.city.trim() || form.city.trim().length < 3) errs.city = "Enter a valid city name"
+    if (!form.city.trim()) errs.city = "City is required"
+    else if (!/^[a-zA-Z\s]+$/.test(form.city.trim())) errs.city = "City name should only contain letters"
+    else if (form.city.trim().toLowerCase() !== 'bengaluru') errs.city = "Sorry, we only deliver in Bengaluru for now"
     
+    const SERVICEABLE_PINCODES = ['560100', '560034', '560068', '560076', '560102', '560103', '560001', '560002']
     if (!form.pincode.trim()) errs.pincode = "Pincode is required"
     else if (!/^\d{6}$/.test(form.pincode.trim())) errs.pincode = "Enter a valid 6-digit pincode"
+    else if (!SERVICEABLE_PINCODES.includes(form.pincode.trim())) errs.pincode = "Please enter a valid serviceable pincode"
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
@@ -120,6 +135,7 @@ export default function Checkout() {
       setIsSubmitting(false)
       setShowSuccess(true)
       clearCart()
+      sessionStorage.removeItem('savedAddress')
       setTimeout(() => navigate(`/order-tracking/${newId}`), 4000)
     }, 2000)
   }
@@ -199,11 +215,18 @@ export default function Checkout() {
                       </div>
                       <div className={styles.field}>
                         <label>Pincode</label>
-                        <input name="pincode" value={form.pincode} onChange={handle} placeholder="560034" className={errors.pincode ? styles.inputError : ''} />
-                        {errors.pincode && <span className={styles.errorText}>{errors.pincode}</span>}
+                        <input name="pincode" value={form.pincode} onChange={handle} placeholder="560100" className={errors.pincode ? styles.inputError : ''} />
+                        {errors.pincode ? (
+                          <span className={styles.errorText}>{errors.pincode}</span>
+                        ) : (
+                          <span className={styles.hintText}>Serving Koramangala, E-City, HSR & Central Bengaluru</span>
+                        )}
                       </div>
                     </div>
-                    <button className="btn-primary" onClick={handleNext} style={{ marginTop: '8px' }}>Continue to Payment →</button>
+                    <div className={styles.btnRow}>
+                      <button className="btn-secondary" onClick={() => navigate('/cart')}>← Back to Cart</button>
+                      <button className="btn-primary" onClick={handleNext}>Continue to Payment →</button>
+                    </div>
                   </div>
                 </div>
               )}
