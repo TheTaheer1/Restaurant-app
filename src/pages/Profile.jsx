@@ -24,6 +24,7 @@ export default function Profile() {
 
   const baseUser = USERS.find(u => u._id === 'u1') || USERS[0]
   const [currentUser, setCurrentUser] = useState({ ...baseUser })
+  const [tick, setTick] = useState(0)
 
   const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   const location = useLocation()
@@ -31,9 +32,16 @@ export default function Profile() {
   const [highlightedId, setHighlightedId] = useState(null)
 
   const openRateModal = location.state?.openRateModal
+  const openGeneralReview = location.state?.openGeneralReview
 
   useEffect(() => {
-    if (highlightOrder) {
+    if (openGeneralReview) {
+      setSelectedOrderId(null)
+      setRating(5)
+      setComment('')
+      setEditingReviewId(null)
+      setShowReviewModal(true)
+    } else if (highlightOrder) {
       setHighlightedId(highlightOrder)
       const el = document.getElementById(`order-${highlightOrder}`)
       if (el) {
@@ -187,7 +195,12 @@ export default function Profile() {
                     className={styles.clearBtn}
                     onClick={() => {
                       if (window.confirm('Are you sure you want to clear your order history?')) {
-                        ORDERS.length = 0
+                        // Clear only this user's orders to be safe
+                        for (let i = ORDERS.length - 1; i >= 0; i--) {
+                          if (ORDERS[i].userId === currentUser._id) {
+                            ORDERS.splice(i, 1)
+                          }
+                        }
                         saveOrders()
                         setTick(t => t + 1)
                       }
@@ -347,7 +360,7 @@ export default function Profile() {
                 exit={{ scale: 0.9, opacity: 0 }}
               >
                 <div className={styles.modalHeader}>
-                  <h2>{editingReviewId ? 'Edit Your Review' : 'Rate Your Order'}</h2>
+                  <h2>{editingReviewId ? 'Edit Your Review' : selectedOrderId ? 'Rate Your Order' : 'Rate Your Experience'}</h2>
                   <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}>✕</button>
                 </div>
                 <form onSubmit={handleReviewSubmit}>

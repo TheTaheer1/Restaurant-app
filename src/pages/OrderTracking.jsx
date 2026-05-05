@@ -113,12 +113,28 @@ export default function OrderTracking() {
       <div className={styles.body}>
         <div className="container">
           {!order ? (
-            <div className={styles.cancelledCard}>
-              <div className={styles.cancelledIcon}>⏳</div>
-              <h2>Finding Your Order...</h2>
-              <p>Please wait a moment while we locate your delicious meal in our kitchen.</p>
-              <div style={{marginTop: '20px', opacity: 0.5}}>Attempt {retryCount + 1} of 10</div>
-            </div>
+            retryCount < 10 ? (
+              <div className={styles.cancelledCard}>
+                <div className={styles.cancelledIcon}>⏳</div>
+                <h2>Finding Your Order...</h2>
+                <p>Please wait a moment while we locate your delicious meal in our kitchen.</p>
+              </div>
+            ) : (
+              <div className={styles.trackingCard}>
+                <div className={styles.cancelledCard} style={{ background: 'none', border: 'none', padding: '20px 0' }}>
+                  <div className={styles.cancelledIcon} style={{ background: 'rgba(56, 142, 60, 0.1)', color: '#388e3c', borderColor: '#388e3c' }}>✓</div>
+                  <h2>Order Delivered Successfully</h2>
+                  <p>This order has been completed and delivered to your doorstep.</p>
+                </div>
+                <div className={styles.deliveredActions}>
+                  <h3>Hope you enjoyed your meal!</h3>
+                  <div className={styles.actionRow}>
+                    <button className={styles.btnSecondary} onClick={() => navigate('/menu')}>Reorder Now</button>
+                    <button className={styles.btnOutline} onClick={() => navigate('/profile', { state: { openGeneralReview: true } })}>Rate Us</button>
+                  </div>
+                </div>
+              </div>
+            )
           ) : currentStep === -1 ? (
             <div className={styles.cancelledCard}>
               <div className={styles.cancelledIcon}>⏳</div>
@@ -145,18 +161,28 @@ export default function OrderTracking() {
             </div>
 
             <div className={styles.timeline}>
-              {STEPS.map((step, index) => (
-                <div 
-                  key={step.id} 
-                  className={`${styles.step} ${index <= currentStep ? styles.active : ''} ${index < currentStep ? styles.done : ''}`}
-                >
-                  <div className={styles.stepIcon}>{step.icon}</div>
-                  <div className={styles.stepInfo}>
-                    <div className={styles.stepLabel}>{step.label}</div>
-                    <div className={styles.stepTime}>{index <= currentStep ? step.time : '--'}</div>
+              {STEPS.map((step, index) => {
+                const getStepTime = (idx) => {
+                  if (!order || !order.createdAt) return '--'
+                  const base = new Date(order.createdAt)
+                  const gaps = [0, 2, 5, 20, 25, 35] // Cumulative minutes from start
+                  base.setMinutes(base.getMinutes() + gaps[idx])
+                  return base.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+
+                return (
+                  <div 
+                    key={step.id} 
+                    className={`${styles.step} ${index <= currentStep ? styles.active : ''} ${index < currentStep ? styles.done : ''}`}
+                  >
+                    <div className={styles.stepIcon}>{step.icon}</div>
+                    <div className={styles.stepInfo}>
+                      <div className={styles.stepLabel}>{step.label}</div>
+                      <div className={styles.stepTime}>{index <= currentStep ? getStepTime(index) : '--'}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <div className={styles.mapMock}>

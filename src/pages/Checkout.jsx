@@ -51,6 +51,10 @@ export default function Checkout() {
   const [isOrdered, setIsOrdered] = useState(false)
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [step])
+
+  useEffect(() => {
     const saved = sessionStorage.getItem('savedAddress')
     if (saved) {
       try {

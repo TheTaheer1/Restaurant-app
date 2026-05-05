@@ -11,12 +11,14 @@ import Profile from './pages/Profile'
 import Admin from './pages/Admin'
 import OrderTracking from './pages/OrderTracking'
 import Success from './pages/Success'
+import ScrollToTop from './components/ScrollToTop'
 
 export default function App() {
   const location = useLocation()
   
   return (
     <CartProvider>
+      <ScrollToTop />
       <Navbar />
       <AnimatePresence mode="popLayout">
         <Routes location={location} key={location.pathname}>
