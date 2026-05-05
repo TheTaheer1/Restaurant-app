@@ -36,9 +36,44 @@ function getInitials(name) {
 }
 
 export default function Profile() {
-  const [tab, setTab] = useState('orders')
+  const [tab, setTab] = useState(() => sessionStorage.getItem('profile_tab') || 'orders')
   const navigate = useNavigate()
   const { addItem } = useCart()
+
+  useEffect(() => {
+    sessionStorage.setItem('profile_tab', tab)
+  }, [tab])
+
+  const [addresses, setAddresses] = useState(() => {
+    const saved = localStorage.getItem('user_addresses')
+    return saved ? JSON.parse(saved) : [
+      { id: 'a1', label: 'Home', address: 'Flat 402, Uniworld 2, Electronic City Phase 1, Bengaluru', isDefault: true },
+      { id: 'a2', label: 'Work', address: 'Building 14, Prestige Tech Park, Marathahalli, Bengaluru', isDefault: false }
+    ]
+  })
+
+  useEffect(() => {
+    localStorage.setItem('user_addresses', JSON.stringify(addresses))
+  }, [addresses])
+
+  const [showAddressModal, setShowAddressModal] = useState(() => {
+    return sessionStorage.getItem('profile_address_modal_open') === 'true'
+  })
+  const [editingAddress, setEditingAddress] = useState(() => {
+    return sessionStorage.getItem('profile_address_editing_id') || null
+  })
+  const [addressForm, setAddressForm] = useState(() => {
+    const saved = sessionStorage.getItem('profile_address_form')
+    return saved ? JSON.parse(saved) : { label: 'Home', address: '' }
+  })
+  const [addressError, setAddressError] = useState('')
+
+  useEffect(() => {
+    sessionStorage.setItem('profile_address_modal_open', showAddressModal)
+    if (editingAddress) sessionStorage.setItem('profile_address_editing_id', editingAddress)
+    else sessionStorage.removeItem('profile_address_editing_id')
+    sessionStorage.setItem('profile_address_form', JSON.stringify(addressForm))
+  }, [showAddressModal, editingAddress, addressForm])
 
   const baseUser = USERS.find(u => u._id === 'u1') || USERS[0]
   const [currentUser, setCurrentUser] = useState({ ...baseUser })
@@ -178,12 +213,14 @@ export default function Profile() {
       }
 
       // Update local state to trigger header re-render
-      setCurrentUser(prev => ({
-        ...prev,
+      const updatedUser = {
+        ...currentUser,
         name: formData.name,
         email: formData.email,
         phone: formData.phone
-      }))
+      }
+      setCurrentUser(updatedUser)
+      localStorage.setItem('active_user', JSON.stringify(updatedUser))
 
       setIsSaving(false)
       setSaved(true)
@@ -205,9 +242,9 @@ export default function Profile() {
 
       <div className={styles.tabs}>
         <div className="container">
-          {['orders', 'profile'].map(t => (
+          {['orders', 'profile', 'addresses'].map(t => (
             <button key={t} className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`} onClick={() => setTab(t)}>
-              {t === 'orders' ? 'My Orders' : 'Edit Profile'}
+              {t === 'orders' ? 'My Orders' : t === 'profile' ? 'Edit Profile' : 'Addresses'}
             </button>
           ))}
         </div>
@@ -380,8 +417,162 @@ export default function Profile() {
               </button>
             </div>
           )}
+
+          {tab === 'addresses' && (
+            <div className={styles.addressList}>
+              <div className={styles.ordersHeader}>
+                <h3 className={styles.tabTitle}>Saved Addresses</h3>
+                <button 
+                  className="btn-primary" 
+                  style={{ padding: '8px 16px', fontSize: '13px' }}
+                  onClick={() => {
+                    setEditingAddress(null)
+                    setAddressForm({ label: 'Home', address: '' })
+                    setShowAddressModal(true)
+                    setAddressError('')
+                  }}
+                >
+                  + Add New
+                </button>
+              </div>
+              
+              <div className={styles.addressGrid}>
+                {addresses.map(addr => (
+                  <div key={addr.id} className={styles.addressCard}>
+                    <div className={styles.addressHeader}>
+                      <span className={styles.addressLabel}>{addr.label}</span>
+                      <div className={styles.addressActions}>
+                        <button onClick={() => {
+                          setEditingAddress(addr.id)
+                          setAddressForm({ label: addr.label, address: addr.address })
+                          setShowAddressModal(true)
+                        }}>Edit</button>
+                        <button onClick={() => {
+                          if (window.confirm('Delete this address?')) {
+                            setAddresses(prev => prev.filter(a => a.id !== addr.id))
+                          }
+                        }} style={{ color: '#ff4d4d' }}>Delete</button>
+                      </div>
+                    </div>
+                    <p className={styles.addressText}>{addr.address}</p>
+                    <div className={styles.addressFooter}>
+                      {addr.isDefault ? (
+                        <span className={styles.defaultBadge}>Default Address</span>
+                      ) : (
+                        <button 
+                          className={styles.setDefaultBtn}
+                          onClick={() => {
+                            setAddresses(prev => prev.map(a => ({ ...a, isDefault: a.id === addr.id })))
+                          }}
+                        >
+                          Set as Default
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {showAddressModal && (
+          <ModalPortal>
+            <div className={styles.modalOverlay} onClick={() => setShowAddressModal(false)}>
+              <motion.div 
+                className={styles.modalContent}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className={styles.modalHeader}>
+                  <h2>{editingAddress ? 'Edit Address' : 'Add New Address'}</h2>
+                  <button className={styles.closeBtn} onClick={() => setShowAddressModal(false)}>✕</button>
+                </div>
+                <form onSubmit={(e) => {
+                  e.preventDefault()
+                  
+                  // Smarter validation for "Proper Address"
+                  const addr = addressForm.address.trim()
+                  const words = addr.split(/\s+/).filter(w => w.length > 0)
+                  const hasMinLength = addr.length >= 15
+                  const hasEnoughWords = words.length >= 3
+                  
+                  // Check for junk (long words with no vowels or weird consonant clusters)
+                  const isJunk = words.some(w => {
+                    if (w.length < 8) return false
+                    const vowels = w.match(/[aeiou]/gi) || []
+                    return vowels.length / w.length < 0.15 // Less than 15% vowels is usually junk
+                  })
+                  
+                  if (!hasMinLength) {
+                    setAddressError('Address is too short (min 15 chars)')
+                    return
+                  }
+                  if (!hasEnoughWords) {
+                    setAddressError('Please enter a full address (e.g. Flat, Street, City)')
+                    return
+                  }
+                  if (isJunk) {
+                    setAddressError('Address contains unreadable text. Please use proper words.')
+                    return
+                  }
+                  
+                  setAddressError('')
+                  
+                  if (editingAddress) {
+                    setAddresses(prev => prev.map(a => a.id === editingAddress ? { ...a, ...addressForm } : a))
+                  } else {
+                    const newAddr = {
+                      id: 'a' + Date.now(),
+                      ...addressForm,
+                      isDefault: addresses.length === 0
+                    }
+                    setAddresses(prev => [...prev, newAddr])
+                  }
+                  setShowAddressModal(false)
+                  sessionStorage.removeItem('profile_address_form')
+                  sessionStorage.removeItem('profile_address_editing_id')
+                }}>
+                  <div className={styles.formGroup}>
+                    <label>Tag As</label>
+                    <select 
+                      value={addressForm.label}
+                      onChange={e => setAddressForm({ ...addressForm, label: e.target.value })}
+                      className={styles.selectInput}
+                      required
+                    >
+                      <option value="Home">Home</option>
+                      <option value="Work">Work</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Complete Address</label>
+                    <textarea 
+                      value={addressForm.address}
+                      onChange={e => {
+                        setAddressForm({ ...addressForm, address: e.target.value })
+                        if (e.target.value.length >= 15) setAddressError('')
+                      }}
+                      placeholder="e.g. Flat 102, Building Name, Street, Locality"
+                      rows="3"
+                      required
+                    />
+                    {addressError && <p className={styles.errorText}>{addressError}</p>}
+                  </div>
+                  <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '10px' }}>
+                    {editingAddress ? 'Update Address' : 'Save Address'}
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          </ModalPortal>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showReviewModal && (

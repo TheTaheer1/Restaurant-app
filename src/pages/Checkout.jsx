@@ -24,6 +24,10 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDetecting, setIsDetecting] = useState(false)
   const [showMap, setShowMap] = useState(false)
+  const [savedAddresses, setSavedAddresses] = useState(() => {
+    const saved = localStorage.getItem('user_addresses')
+    return saved ? JSON.parse(saved) : []
+  })
 
   const detectLocation = () => {
     setIsDetecting(true)
@@ -55,10 +59,21 @@ export default function Checkout() {
   }, [step])
 
   useEffect(() => {
+    // Pre-fill from active user profile
+    const activeUser = localStorage.getItem('active_user')
+    if (activeUser) {
+      const user = JSON.parse(activeUser)
+      setForm(f => ({
+        ...f,
+        name: user.name || f.name,
+        phone: user.phone || f.phone
+      }))
+    }
+
     const saved = sessionStorage.getItem('savedAddress')
     if (saved) {
       try {
-        setForm(JSON.parse(saved))
+        setForm(f => ({ ...f, ...JSON.parse(saved) }))
       } catch (e) { /* ignore */ }
     }
     setIsReady(true)
@@ -261,6 +276,59 @@ export default function Checkout() {
                         {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                       </div>
                     </div>
+
+                    {savedAddresses.length > 0 && (
+                      <div className={styles.savedAddresses}>
+                        <label className={styles.fieldLabel}>Saved Addresses</label>
+                        <div className={styles.addrChips}>
+                          {savedAddresses.map(addr => (
+                            <button 
+                              key={addr.id} 
+                              className={styles.addrChip}
+                              onClick={() => {
+                                const fullAddr = addr.address
+                                // Extract Pincode (6 digits)
+                                const pinMatch = fullAddr.match(/\b\d{6}\b/)
+                                const extractedPin = pinMatch ? pinMatch[0] : ''
+                                
+                                // Extract City (Look for Bengaluru or words near pincode)
+                                const cityMatch = fullAddr.match(/Bengaluru|Bangalore/i)
+                                const extractedCity = cityMatch ? cityMatch[0] : 'Bengaluru'
+
+                                // Clean address string for Flat/Area
+                                let cleanAddr = fullAddr.replace(/\b\d{6}\b/, '').replace(/Bengaluru|Bangalore/i, '').trim()
+                                cleanAddr = cleanAddr.replace(/,\s*,/g, ',').replace(/,$/, '').replace(/^,/, '').trim()
+
+                                const parts = cleanAddr.split(', ')
+                                if (parts.length >= 2) {
+                                  setForm(f => ({
+                                    ...f,
+                                    flat: parts[0],
+                                    area: parts.slice(1).join(', '),
+                                    city: extractedCity,
+                                    pincode: extractedPin || f.pincode
+                                  }))
+                                } else {
+                                  setForm(f => ({
+                                    ...f,
+                                    flat: cleanAddr,
+                                    area: '',
+                                    city: extractedCity,
+                                    pincode: extractedPin || f.pincode
+                                  }))
+                                }
+                                setErrors({})
+                              }}
+                            >
+                              <span className={styles.chipIcon}>
+                                {addr.label === 'Home' ? '🏠' : addr.label === 'Work' ? '💼' : '📍'}
+                              </span>
+                              {addr.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <div className={styles.addressBox}>
                       <div className={styles.labelRow}>
