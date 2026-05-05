@@ -132,8 +132,45 @@
 .empty p { color: var(--text-muted); font-size: 15px; max-width: 300px; margin: 0 auto; }
 
 /* RESPONSIVE */
-@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summaryCol { position: static; } }
-@media (max-width: 480px) {
-  .cartItem { flex-wrap: wrap; }
-  .itemActions { width: 100%; justify-content: space-between; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .summaryCol { position: static; margin-top: 20px; }
+  .title { font-size: 32px; }
+}
+
+@media (max-width: 500px) {
+  .cartItem {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    gap: 12px;
+  }
+  .itemEmoji {
+    width: 100%;
+    height: 140px;
+  }
+  .itemInfo {
+    width: 100%;
+  }
+  .itemName {
+    font-size: 16px;
+    white-space: normal;
+  }
+  .itemActions {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+  }
+  .qtyControl button {
+    width: 40px;
+    height: 40px;
+  }
+  .qtyControl span {
+    width: 40px;
+    font-size: 16px;
+  }
+  .itemTotal {
+    font-size: 16px;
+  }
 }

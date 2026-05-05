@@ -36,7 +36,7 @@ export default function Menu() {
       <div className={styles.hero}>
         <div className="container">
           <div className="section-tag">Our Menu</div>
-          <h1 className={styles.heroTitle}>Every Dish, a Story</h1>
+          <h1 className={`${styles.heroTitle} glow-text`}>Every Dish, a Story</h1>
           <p className={styles.heroSub}>Crafted from centuries-old recipes, served fresh from our kitchen.</p>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function Menu() {
               <p>No dishes found. Try a different filter.</p>
             </div>
           ) : (
-            <div className={styles.grid}>
+            <div className={`${styles.grid} stagger-in`}>
               {filtered.map(item => <FoodCard key={item._id} item={item} />)}
             </div>
           )}

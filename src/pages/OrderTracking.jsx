@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext'
 import AnimatedPage from '../components/AnimatedPage'
 import { formatOrderId } from '../utils/orderSlice'
 import { getStoredOrders, updateOrderStatus } from '../data/orders'
+import { MENU } from '../data/menu'
 import styles from './OrderTracking.module.css'
 
 const STEPS = [
@@ -174,20 +175,48 @@ export default function OrderTracking() {
                     className={styles.btnSecondary}
                     onClick={() => {
                       try {
+                        // 1. Add items to cart first
                         order?.items?.forEach(item => {
                           if (!item) return
                           const menuId = item.menuItemId || item.menuId
                           if (menuId) {
-                            addItem({ _id: menuId, name: item.name, price: item.price, image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100' })
+                            addItem({ _id: menuId, name: item.name, price: item.price, image: item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100' })
                           }
                         })
-                        navigate('/cart')
-                      } catch (e) { navigate('/menu') }
+                        
+                        // 2. Determine destination
+                        const history = getStoredOrders()
+                        const stillExists = history.some(o => o._id === orderId)
+                        
+                        if (stillExists) {
+                          navigate('/profile', { state: { highlightOrder: orderId } })
+                        } else {
+                          // If history cleared, go to menu with first item's category if possible
+                          const firstItem = order?.items?.[0]
+                          const category = MENU.find(m => m.name === firstItem?.name)?.category || 'All'
+                          navigate('/menu', { state: { category } })
+                        }
+                      } catch (e) { 
+                        navigate('/menu') 
+                      }
                     }}
                   >
                     Reorder Now
                   </button>
-                  <Link to="/profile" className={styles.btnOutline}>Rate Order</Link>
+                  <button 
+                    className={styles.btnOutline}
+                    onClick={() => {
+                      const history = getStoredOrders()
+                      const stillExists = history.some(o => o._id === orderId)
+                      if (stillExists) {
+                        navigate('/profile', { state: { highlightOrder: orderId, openRateModal: true } })
+                      } else {
+                        navigate('/profile')
+                      }
+                    }}
+                  >
+                    Rate Order
+                  </button>
                 </div>
               </div>
             )}

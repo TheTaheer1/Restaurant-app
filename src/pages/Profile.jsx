@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { formatOrderId, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
+import { formatOrderId, formatOrderDate, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
 import styles from './Profile.module.css'
 
 import { USERS } from '../data/users'
@@ -26,7 +26,43 @@ export default function Profile() {
   const [currentUser, setCurrentUser] = useState({ ...baseUser })
 
   const userOrders = ORDERS.filter(o => o.userId === currentUser._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  const [, setTick] = useState(0)
+  const location = useLocation()
+  const highlightOrder = location.state?.highlightOrder
+  const [highlightedId, setHighlightedId] = useState(null)
+
+  const openRateModal = location.state?.openRateModal
+
+  useEffect(() => {
+    if (highlightOrder) {
+      setHighlightedId(highlightOrder)
+      const el = document.getElementById(`order-${highlightOrder}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+
+      // Auto-open review modal if requested
+      if (openRateModal) {
+        const orderToRate = ORDERS.find(o => o._id === highlightOrder)
+        if (orderToRate && orderToRate.status === 'delivered') {
+          const existingReview = REVIEWS.find(r => r.orderId === highlightOrder)
+          setSelectedOrderId(highlightOrder)
+          if (existingReview) {
+            setRating(existingReview.rating)
+            setComment(existingReview.comment)
+            setEditingReviewId(existingReview._id)
+          } else {
+            setRating(5)
+            setComment('')
+            setEditingReviewId(null)
+          }
+          setShowReviewModal(true)
+        }
+      }
+
+      const t = setTimeout(() => setHighlightedId(null), 3000)
+      return () => clearTimeout(t)
+    }
+  }, [highlightOrder, openRateModal])
 
   // Review Modal State
   const [showReviewModal, setShowReviewModal] = useState(false)
@@ -172,7 +208,8 @@ export default function Profile() {
                 return (
                   <div 
                     key={order._id} 
-                    className={`${styles.orderCard} ${(order.status !== 'delivered' && order.status !== 'cancelled') ? styles.clickableCard : ''}`}
+                    id={`order-${order._id}`}
+                    className={`${styles.orderCard} ${(order.status !== 'delivered' && order.status !== 'cancelled') ? styles.clickableCard : ''} ${highlightedId === order._id ? styles.highlighted : ''}`}
                     onClick={() => {
                       if (order.status !== 'delivered' && order.status !== 'cancelled') {
                         navigate(`/order-tracking/${order._id}`)
@@ -183,14 +220,7 @@ export default function Profile() {
                       <div>
                         <div className={styles.orderId}>{formatOrderId(order._id.replace('o', ''))}</div>
                         <div className={styles.orderDate}>
-                          {order.createdAt.includes(',') ? (
-                            <>
-                              <span>{order.createdAt.split(',')[0]}</span>
-                              <span className={styles.orderTime}>{order.createdAt.split(',')[1]}</span>
-                            </>
-                          ) : (
-                            order.createdAt
-                          )}
+                          {formatOrderDate(order.createdAt)}
                         </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
@@ -209,7 +239,8 @@ export default function Profile() {
                           {(order.status !== 'delivered' && order.status !== 'cancelled') && (
                             <button
                               className={styles.cancelOrderBtn}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation()
                                 if (window.confirm('Are you sure you want to cancel this order?')) {
                                   order.status = 'cancelled'
                                   saveOrders()
@@ -223,7 +254,8 @@ export default function Profile() {
                           {(order.status === 'delivered' || order.status === 'cancelled') && (
                             <button
                               className={styles.reorderBtn}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation()
                                 order.items.forEach(item => {
                                   addItem({ _id: item.menuItemId, name: item.name, price: item.price, image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100' })
                                 })
@@ -236,7 +268,8 @@ export default function Profile() {
                           {order.status === 'delivered' && (
                             <button
                               className={styles.rateBtn}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation()
                                 const existingReview = REVIEWS.find(r => r.orderId === order._id)
                                 setSelectedOrderId(order._id)
                                 if (existingReview) {

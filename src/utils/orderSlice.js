@@ -39,3 +39,25 @@ export function getStatusStep(status) {
 export function formatOrderId(id) {
   return `#SS${String(id).padStart(4, '0')}`
 }
+
+export function formatOrderDate(isoString) {
+  if (!isoString) return ''
+  try {
+    const date = new Date(isoString)
+    if (isNaN(date.getTime())) return isoString // Fallback
+    
+    const formatted = date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).replace(/,/g, '')
+    
+    // Convert to one line with a bullet separator
+    return formatted.replace(/\s(\d{2}:\d{2})/, ' · $1')
+  } catch (e) {
+    return isoString
+  }
+}

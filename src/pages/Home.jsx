@@ -216,7 +216,7 @@ export default function Home() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
             <div className={styles.heroBadge}>{slide.badge}</div>
-            <h1>{slide.heading}</h1>
+            <h1 className="glow-text">{slide.heading}</h1>
             <p>{slide.quote}</p>
             <div className={styles.heroActions}>
               {slide.cta.type === 'primary' ? (
@@ -276,7 +276,7 @@ export default function Home() {
           <div className={styles.sectionTag} style={{ textAlign: 'center' }}>Explore Our Menu</div>
           <div className={styles.sectionTitle} style={{ textAlign: 'center' }}>Browse by Category</div>
         </motion.div>
-        <div className={styles.categoryGrid}>
+        <div className={`${styles.categoryGrid} stagger-in`}>
           {[
             {
               label: 'Starters',
@@ -410,7 +410,7 @@ export default function Home() {
             <div>📞 &nbsp; +91 98400 00000</div>
           </div>
         </div>
-        <form className={styles.resForm} onSubmit={(e) => { e.preventDefault(); alert('Table reserved! We look forward to welcoming you.'); e.target.reset(); }}>
+        <form className={`${styles.resForm} glass-panel`} style={{ padding: '40px' }} onSubmit={(e) => { e.preventDefault(); alert('Table reserved! We look forward to welcoming you.'); e.target.reset(); }}>
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <label>Full Name</label>
