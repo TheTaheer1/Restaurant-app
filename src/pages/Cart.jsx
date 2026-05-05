@@ -1,11 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { calcTotal, formatPrice } from '../utils/cartSlice'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Cart.module.css'
 
 export default function Cart() {
-  const { items, removeItem, updateQty, clearCart } = useCart()
+  const navigate = useNavigate()
+  const { items, removeItem, updateQty, clearCart, addItem } = useCart()
   const { subtotal, tax, delivery, total } = calcTotal(items)
 
   return (
@@ -53,8 +54,11 @@ export default function Cart() {
               {/* Items Column */}
               <div className={styles.itemsCol}>
                 <div className={styles.itemsHeader}>
-                  <h3 className={styles.sectionTitle}>Order Details</h3>
-                  <button className={styles.clearBtn} onClick={clearCart}>Clear All Items</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <h3 className={styles.sectionTitle}>Order Details</h3>
+                    <Link to="/menu" className={styles.addMoreTopBtn}>+ Add more items</Link>
+                  </div>
+                  <button className={styles.clearBtn} onClick={clearCart}>Clear All</button>
                 </div>
                 
                 <div className={styles.items}>
@@ -69,14 +73,6 @@ export default function Cart() {
                         transition={{ delay: index * 0.05 }}
                         layout
                       >
-                        <button 
-                          className={styles.removeBtn} 
-                          onClick={() => removeItem(item._id)}
-                          title="Remove item"
-                        >
-                          ✕
-                        </button>
-                        
                         <div className={styles.itemImageWrap}>
                           <img src={item.image} alt={item.name} className={styles.itemImage} />
                         </div>
@@ -93,16 +89,54 @@ export default function Cart() {
                             <span className={styles.qtyValue}>{item.qty}</span>
                             <button onClick={() => updateQty(item._id, item.qty + 1)}>+</button>
                           </div>
-                          <div className={styles.itemTotal}>{formatPrice(item.price * item.qty)}</div>
+                          <div className={styles.itemTotal}>Total: {formatPrice(item.price * item.qty)}</div>
+                          <button 
+                            className={styles.removeBtnInline} 
+                            onClick={() => removeItem(item._id)}
+                            title="Remove item"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                          </button>
                         </div>
                       </motion.div>
                     ))}
                   </AnimatePresence>
                 </div>
                 
-                <Link to="/menu" className={styles.continueLink} style={{ marginTop: '32px', textAlign: 'left' }}>
-                  + Add more items to your order
-                </Link>
+                {/* Recommended Section */}
+                <div className={styles.recommendations}>
+                  <h4 className={styles.recTitle}>Recommended for you</h4>
+                  <div className={styles.recGrid}>
+                    {[
+                      { _id: 'rec_chai', name: 'Masala Chai', price: 45, image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=200&h=200&fit=crop', category: 'Beverage' },
+                      { _id: 'rec_naan', name: 'Garlic Naan', price: 60, image: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=200&h=200&fit=crop', category: 'Sides' },
+                      { _id: 'rec_jamun', name: 'Gulab Jamun', price: 120, image: 'https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=200&h=200&fit=crop', category: 'Dessert' }
+                    ].map(rec => (
+                      <div key={rec._id} className={styles.recCard}>
+                        <img src={rec.image} alt={rec.name} className={styles.recImg} />
+                        <div className={styles.recInfo}>
+                          <div className={styles.recName}>{rec.name}</div>
+                          <div className={styles.recPrice}>{formatPrice(rec.price)}</div>
+                        </div>
+                        <button 
+                          className={styles.recAddBtn}
+                          onClick={() => {
+                            addItem({
+                              _id: rec._id,
+                              name: rec.name,
+                              price: rec.price,
+                              image: rec.image,
+                              category: rec.category,
+                              qty: 1
+                            })
+                          }}
+                        >
+                          Add
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Summary Column */}
@@ -146,9 +180,16 @@ export default function Cart() {
                     <span className={styles.totalAmount}>{formatPrice(total)}</span>
                   </div>
 
-                  <Link to="/checkout" className={`btn-primary ${styles.checkoutBtn}`}>
+                  <button 
+                    onClick={() => {
+                      sessionStorage.removeItem('checkout_step')
+                      navigate('/checkout')
+                    }} 
+                    className={`btn-primary ${styles.checkoutBtn}`}
+                    style={{ width: '100%', border: 'none', cursor: 'pointer' }}
+                  >
                     Proceed to Checkout
-                  </Link>
+                  </button>
                   
                   <Link to="/menu" className={styles.continueLink}>
                     ← Continue Shopping

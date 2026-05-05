@@ -14,7 +14,20 @@ export default function Checkout() {
     flat: '', area: '', landmark: '', 
     city: 'Bengaluru', pincode: '', payMethod: 'upi' 
   })
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(() => {
+    const savedStep = sessionStorage.getItem('checkout_step')
+    return savedStep ? parseInt(savedStep) : 1
+  })
+
+  const [isReady, setIsReady] = useState(false)
+  const [isOrdered, setIsOrdered] = useState(false)
+
+  useEffect(() => {
+    if (isReady && !isOrdered) {
+      sessionStorage.setItem('checkout_step', step.toString())
+    }
+  }, [step, isReady, isOrdered])
+
   const navigate = useNavigate()
   const fullAddress = `${form.flat}, ${form.area}${form.landmark ? `, ${form.landmark}` : ''}`
   const { subtotal, tax, delivery, total } = calcTotal(items, discount, fullAddress)
@@ -28,7 +41,6 @@ export default function Checkout() {
     const saved = localStorage.getItem('user_addresses')
     return saved ? JSON.parse(saved) : []
   })
-
   const detectLocation = () => {
     setIsDetecting(true)
     setTimeout(() => {
@@ -51,15 +63,11 @@ export default function Checkout() {
     'SAVE200': 200
   }
 
-  const [isReady, setIsReady] = useState(false)
-  const [isOrdered, setIsOrdered] = useState(false)
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [step])
 
   useEffect(() => {
-    // Pre-fill from active user profile
     const activeUser = localStorage.getItem('active_user')
     if (activeUser) {
       const user = JSON.parse(activeUser)
@@ -180,6 +188,7 @@ export default function Checkout() {
       // 4. Cleanup storage
       localStorage.removeItem('savedAddress')
       sessionStorage.removeItem('savedAddress')
+      sessionStorage.removeItem('checkout_step')
       
       // 5. Navigate to Success Page first
       navigate(`/order-success/${newId}`)
@@ -287,15 +296,10 @@ export default function Checkout() {
                               className={styles.addrChip}
                               onClick={() => {
                                 const fullAddr = addr.address
-                                // Extract Pincode (6 digits)
                                 const pinMatch = fullAddr.match(/\b\d{6}\b/)
                                 const extractedPin = pinMatch ? pinMatch[0] : ''
-                                
-                                // Extract City (Look for Bengaluru or words near pincode)
                                 const cityMatch = fullAddr.match(/Bengaluru|Bangalore/i)
                                 const extractedCity = cityMatch ? cityMatch[0] : 'Bengaluru'
-
-                                // Clean address string for Flat/Area
                                 let cleanAddr = fullAddr.replace(/\b\d{6}\b/, '').replace(/Bengaluru|Bangalore/i, '').trim()
                                 cleanAddr = cleanAddr.replace(/,\s*,/g, ',').replace(/,$/, '').replace(/^,/, '').trim()
 
@@ -333,25 +337,18 @@ export default function Checkout() {
                     <div className={styles.addressBox}>
                       <div className={styles.labelRow}>
                         <label>Detailed Address</label>
-                        <button 
-                          className={styles.detectBtn} 
-                          onClick={detectLocation}
-                          disabled={isDetecting}
-                        >
+                        <button className={styles.detectBtn} onClick={detectLocation} disabled={isDetecting}>
                           {isDetecting ? '📍 Locating...' : '📍 Detect My Location'}
                         </button>
                       </div>
-                      
                       <div className={styles.field}>
                         <input name="flat" value={form.flat} onChange={handle} placeholder="Flat, House no., Building, Apartment" className={errors.flat ? styles.inputError : ''} />
                         {errors.flat && <span className={styles.errorText}>{errors.flat}</span>}
                       </div>
-
                       <div className={styles.field}>
                         <input name="area" value={form.area} onChange={handle} placeholder="Area, Colony, Street, Sector" className={errors.area ? styles.inputError : ''} />
                         {errors.area && <span className={styles.errorText}>{errors.area}</span>}
                       </div>
-
                       <div className={styles.field}>
                         <input name="landmark" value={form.landmark} onChange={handle} placeholder="Landmark (Optional)" />
                       </div>
@@ -373,6 +370,16 @@ export default function Checkout() {
                         )}
                       </div>
                     </div>
+
+                    {/* Mobile Summary */}
+                    <div className={styles.mobileSummary}>
+                      <OrderSummary 
+                        subtotal={subtotal} tax={tax} delivery={delivery} total={total} discount={discount} coupon={coupon}
+                        couponCode={couponCode} setCouponCode={setCouponCode} handleCoupon={handleCoupon}
+                        couponMsg={couponMsg} removeCoupon={removeCoupon}
+                      />
+                    </div>
+
                     <div className={styles.btnRow}>
                       <button className="btn-secondary" onClick={() => navigate('/cart')}>← Back to Cart</button>
                       <button className="btn-primary" onClick={handleNext}>Continue to Payment →</button>
@@ -393,6 +400,16 @@ export default function Checkout() {
                       </label>
                     ))}
                   </div>
+
+                  {/* Mobile Summary */}
+                  <div className={styles.mobileSummary}>
+                    <OrderSummary 
+                      subtotal={subtotal} tax={tax} delivery={delivery} total={total} discount={discount} coupon={coupon}
+                      couponCode={couponCode} setCouponCode={setCouponCode} handleCoupon={handleCoupon}
+                      couponMsg={couponMsg} removeCoupon={removeCoupon}
+                    />
+                  </div>
+
                   <div className={styles.btnRow}>
                     <button className="btn-secondary" onClick={() => setStep(1)}>← Back</button>
                     <button className="btn-primary" onClick={() => setStep(3)}>Review Order →</button>
@@ -431,6 +448,16 @@ export default function Checkout() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Mobile Summary */}
+                  <div className={styles.mobileSummary}>
+                    <OrderSummary 
+                      subtotal={subtotal} tax={tax} delivery={delivery} total={total} discount={discount} coupon={coupon}
+                      couponCode={couponCode} setCouponCode={setCouponCode} handleCoupon={handleCoupon}
+                      couponMsg={couponMsg} removeCoupon={removeCoupon}
+                    />
+                  </div>
+
                   <div className={styles.btnRow}>
                     <button className="btn-secondary" onClick={() => setStep(2)}>← Back</button>
                     <button className="btn-primary" onClick={placeOrder} disabled={isSubmitting}>
@@ -441,46 +468,13 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* Order mini-summary */}
+            {/* Desktop Summary Sidebar */}
             <div className={styles.summaryCol}>
-              <div className={styles.summary}>
-                <h3 className={styles.summaryTitle}>Order Total</h3>
-                <div className={styles.lines}>
-                  <div className={styles.line}><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
-                  <div className={styles.line}><span>GST (5%)</span><span>{formatPrice(tax)}</span></div>
-                  <div className={styles.line}>
-                    <span>Delivery</span>
-                    <span>{delivery === 0 ? (subtotal === 0 ? formatPrice(0) : 'FREE') : formatPrice(delivery)}</span>
-                  </div>
-                  {discount > 0 && (
-                    <div className={`${styles.line} ${styles.discountLine}`}>
-                      <span>Discount ({coupon})</span>
-                      <span>-{formatPrice(discount)}</span>
-                    </div>
-                  )}
-                </div>
-                <div className={styles.totalLine}><span>Total</span><span>{formatPrice(total)}</span></div>
-                
-                {/* Coupon Input */}
-                <div className={styles.couponSection}>
-                  <div className={styles.couponInputWrap}>
-                    <input 
-                      placeholder="Enter Coupon (WELCOME50)" 
-                      value={couponCode}
-                      onChange={e => setCouponCode(e.target.value)}
-                    />
-                    <button onClick={handleCoupon}>Apply</button>
-                  </div>
-                  {couponMsg.text && (
-                    <div className={`${styles.couponMsg} ${styles[couponMsg.type]}`}>
-                      {couponMsg.text}
-                    </div>
-                  )}
-                  {coupon && (
-                    <button className={styles.removeCoupon} onClick={removeCoupon}>Remove {coupon}</button>
-                  )}
-                </div>
-              </div>
+              <OrderSummary 
+                subtotal={subtotal} tax={tax} delivery={delivery} total={total} discount={discount} coupon={coupon}
+                couponCode={couponCode} setCouponCode={setCouponCode} handleCoupon={handleCoupon}
+                couponMsg={couponMsg} removeCoupon={removeCoupon}
+              />
             </div>
           </div>
         </div>
@@ -504,15 +498,11 @@ export default function Checkout() {
                 </div>
 
                 <div className={styles.mapContainer}>
-                  {/* Real Interactive Map */}
                   <div ref={mapRef} className={styles.mapVisual}></div>
-                  
-                  {/* Center Pin Overlay */}
                   <div className={styles.mapPinOverlay}>
                     <div className={styles.mapPin}>📍</div>
                     <div className={styles.mapPulse}></div>
                   </div>
-                  
                   <div className={styles.locationInfo}>
                     <div className={styles.locIcon}>🏠</div>
                     <div className={styles.locText}>
@@ -527,10 +517,8 @@ export default function Checkout() {
 
                 <div className={styles.modalFooter}>
                   <button className={styles.confirmBtn} onClick={() => {
-                    // Simulate fetching address for coordinates
                     const areas = ['Electronic City Phase 1', 'Koramangala 4th Block', 'HSR Layout Sector 2', 'Indiranagar 12th Main'];
                     const randomArea = areas[Math.floor(Math.random() * areas.length)];
-                    
                     setForm(f => ({
                       ...f,
                       flat: `Unit ${Math.floor(Math.random() * 900 + 100)}, Block ${String.fromCharCode(65 + Math.floor(Math.random() * 6))}`,
@@ -548,6 +536,48 @@ export default function Checkout() {
           </ModalPortal>
         )}
       </AnimatePresence>
+    </div>
+  )
+}
+
+function OrderSummary({ subtotal, tax, delivery, total, discount, coupon, couponCode, setCouponCode, handleCoupon, couponMsg, removeCoupon }) {
+  return (
+    <div className={styles.summary}>
+      <h3 className={styles.summaryTitle}>Order Total</h3>
+      <div className={styles.lines}>
+        <div className={styles.line}><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+        <div className={styles.line}><span>GST (5%)</span><span>{formatPrice(tax)}</span></div>
+        <div className={styles.line}>
+          <span>Delivery</span>
+          <span>{delivery === 0 ? (subtotal === 0 ? formatPrice(0) : 'FREE') : formatPrice(delivery)}</span>
+        </div>
+        {discount > 0 && (
+          <div className={`${styles.line} ${styles.discountLine}`}>
+            <span>Discount ({coupon})</span>
+            <span>-{formatPrice(discount)}</span>
+          </div>
+        )}
+      </div>
+      <div className={styles.totalLine}><span>Total</span><span>{formatPrice(total)}</span></div>
+      
+      <div className={styles.couponSection}>
+        <div className={styles.couponInputWrap}>
+          <input 
+            placeholder="Enter Coupon (WELCOME50)" 
+            value={couponCode}
+            onChange={e => setCouponCode(e.target.value)}
+          />
+          <button onClick={handleCoupon}>Apply</button>
+        </div>
+        {couponMsg.text && (
+          <div className={`${styles.couponMsg} ${styles[couponMsg.type]}`}>
+            {couponMsg.text}
+          </div>
+        )}
+        {coupon && (
+          <button className={styles.removeCoupon} onClick={removeCoupon}>Remove {coupon}</button>
+        )}
+      </div>
     </div>
   )
 }

@@ -80,7 +80,7 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 20px;
+  padding: 24px;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -303,14 +303,18 @@
 
 .checkoutBtn {
   width: 100%;
-  padding: 18px;
+  padding: 20px;
   border-radius: var(--radius-lg);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   margin-bottom: 16px;
-  box-shadow: 0 10px 20px rgba(232, 168, 76, 0.2);
+  box-shadow: 0 10px 30px rgba(232, 168, 76, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .continueLink {
@@ -420,4 +424,148 @@
     background: rgba(244, 67, 54, 0.2);
     color: var(--red-primary);
   }
+}
+
+.recommendations {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.recTitle {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--brown-cream);
+  margin-bottom: 20px;
+}
+
+.recGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.recCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.recCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--brown-light);
+  transform: translateY(-2px);
+}
+
+.recImg {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.recInfo {
+  flex: 1;
+}
+
+.recName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brown-cream);
+  margin-bottom: 2px;
+}
+
+.recPrice {
+  font-size: 12px;
+  color: var(--brown-accent);
+  font-weight: 600;
+}
+
+.recAddBtn {
+  background: rgba(232, 168, 76, 0.1);
+  border: 1px solid var(--brown-light);
+  color: var(--brown-light);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recAddBtn:hover {
+  background: var(--brown-light);
+  color: var(--brown-darkest);
+}
+
+@media (max-width: 600px) {
+  .recGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.addMoreTopBtn {
+  color: var(--brown-light);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.addMoreTopBtn:hover {
+  color: var(--brown-cream);
+  transform: translateX(4px);
+}
+
+.removeBtnInline {
+  background: rgba(244, 67, 54, 0.08);
+  border: 1px solid rgba(244, 67, 54, 0.15);
+  color: var(--red-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 24px;
+}
+
+.removeBtnInline:hover {
+  background: var(--red-primary);
+  color: white;
+  border-color: var(--red-primary);
+  transform: scale(1.1) rotate(8deg);
+  box-shadow: 0 4px 12px rgba(212, 82, 58, 0.3);
+}
+
+.totalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding: 16px 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.totalLabel {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--brown-cream);
+  display: block;
+}
+
+.totalSub {
+  font-size: 14px;
+  color: var(--brown-accent);
+  font-weight: 500;
 }

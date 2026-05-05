@@ -292,7 +292,7 @@ export default function Profile() {
                     onClick={() => {
                       if (order.status !== 'delivered' && order.status !== 'cancelled') {
                         navigate(`/order-tracking/${order._id}`)
-                      } else {
+                      } else if (order.status === 'delivered') {
                         setSummaryOrderId(order._id)
                       }
                     }}
@@ -373,7 +373,7 @@ export default function Profile() {
                     </div>
                     <div className={styles.orderItems}>{order.items.map(i => `${i.name} × ${i.qty}`).join(' · ')}</div>
                     <div className={styles.orderTotal}>Total: {formatPrice(order.totalAmount)}</div>
-                    {(order.status === 'delivered' || order.status === 'cancelled') && (
+                    {order.status === 'delivered' && (
                       <button 
                         className={styles.summaryBtn}
                         onClick={(e) => { e.stopPropagation(); setSummaryOrderId(order._id); }}
