@@ -108,6 +108,12 @@
   color: white;
 }
 
+.clearBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
 .orderCard {
   background: var(--brown-dark);
   border: 1px solid var(--border-color);
@@ -280,6 +286,25 @@
 }
 
 /* Modal Styles */
+.summaryBtn {
+  background: none;
+  border: 1px solid var(--brown-light);
+  color: var(--brown-light);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  width: fit-content;
+  transition: all 0.2s;
+}
+
+.summaryBtn:hover {
+  background: var(--brown-light);
+  color: var(--brown-darkest);
+}
+
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -483,5 +508,91 @@
 
   .progress {
     gap: 0;
+  }
+}
+
+/* Summary Modal */
+.summaryModal {
+  background: var(--brown-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.summaryContent {
+  margin-top: 24px;
+}
+
+.summaryItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summaryItemName {
+  color: var(--brown-cream);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.summaryItemQty {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.summaryItemPrice {
+  color: var(--brown-accent);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.summaryTotals {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summaryLine {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.summaryTotalLine {
+  border-top: 2px solid var(--border-color);
+  padding-top: 16px;
+  margin-top: 8px;
+  font-weight: 700;
+  color: var(--brown-cream);
+  font-size: 18px;
+}
+
+.summaryFooter {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .summaryModal {
+    padding: 24px;
+    max-width: 90vw;
   }
 }

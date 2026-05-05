@@ -85,6 +85,160 @@
 .cancelledCard h2 { color: var(--brown-cream); margin-bottom: 12px; }
 .cancelledCard p { color: var(--text-muted); margin-bottom: 24px; }
 
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: var(--brown-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modalHeader h2 {
+  font-family: var(--font-display);
+  color: var(--brown-cream);
+  margin: 0;
+  font-size: 20px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.starRating {
+  display: flex;
+  gap: 8px;
+  font-size: 32px;
+}
+
+.star {
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.starActive {
+  color: #f4c150;
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  background: var(--brown-darkest);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  color: var(--brown-cream);
+  font-family: var(--font-body);
+  resize: none;
+  height: 100px;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: var(--brown-light);
+}
+
+.billCard {
+  background: var(--brown-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  color: var(--brown-cream);
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.billItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.billItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.billTotals {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.billLine {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.billTotalLine {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  color: var(--brown-cream);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.paymentInfo {
+  margin-top: 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .hero { padding: 40px 0 30px; }
   .title { font-size: 26px; text-align: center; }

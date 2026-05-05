@@ -163,11 +163,12 @@
     border-top: 1px solid var(--border-color);
   }
   .qtyControl button {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
   }
   .qtyControl span {
-    width: 40px;
+    width: 36px;
     font-size: 16px;
   }
   .itemTotal {

@@ -6,7 +6,7 @@ export function calcSubtotal(items) {
 }
 
 export function calcTax(subtotal, rate = 0.05) {
-  return subtotal * rate
+  return Math.round(subtotal * rate)
 }
 
 export function calcDelivery(subtotal, address = '', freeThreshold = 500) {

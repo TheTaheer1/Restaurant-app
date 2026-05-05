@@ -1,8 +1,26 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { formatPrice } from '../utils/cartSlice'
 import { formatOrderId, formatOrderDate, STATUS_LABELS, STATUS_COLORS, getStatusStep } from '../utils/orderSlice'
 import styles from './Profile.module.css'
+
+const reconstructOrder = (order) => {
+  if (!order) return null
+  if (order.subtotal !== undefined && order.tax !== undefined) return order
+  
+  const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.qty), 0) || 0
+  const tax = Math.round(subtotal * 0.05)
+  const delivery = Math.max(0, (order.total || order.totalAmount || 0) - (subtotal + tax))
+  
+  return {
+    ...order,
+    subtotal,
+    tax,
+    delivery,
+    total: order.total || order.totalAmount
+  }
+}
 
 import { USERS } from '../data/users'
 import { ORDERS, saveOrders } from '../data/orders'
@@ -30,9 +48,26 @@ export default function Profile() {
   const location = useLocation()
   const highlightOrder = location.state?.highlightOrder
   const [highlightedId, setHighlightedId] = useState(null)
-
   const openRateModal = location.state?.openRateModal
   const openGeneralReview = location.state?.openGeneralReview
+
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [selectedOrderId, setSelectedOrderId] = useState(null)
+  const [rating, setRating] = useState(5)
+  const [comment, setComment] = useState('')
+  const [editingReviewId, setEditingReviewId] = useState(null)
+  const [summaryOrderId, setSummaryOrderId] = useState(() => {
+    return sessionStorage.getItem('profile_summary_id') || null
+  })
+
+  useEffect(() => {
+    if (summaryOrderId) {
+      sessionStorage.setItem('profile_summary_id', summaryOrderId)
+    } else {
+      sessionStorage.removeItem('profile_summary_id')
+    }
+  }, [summaryOrderId])
 
   useEffect(() => {
     if (openGeneralReview) {
@@ -70,14 +105,8 @@ export default function Profile() {
       const t = setTimeout(() => setHighlightedId(null), 3000)
       return () => clearTimeout(t)
     }
-  }, [highlightOrder, openRateModal])
+  }, [highlightOrder, openRateModal, openGeneralReview])
 
-  // Review Modal State
-  const [showReviewModal, setShowReviewModal] = useState(false)
-  const [selectedOrderId, setSelectedOrderId] = useState(null)
-  const [rating, setRating] = useState(5)
-  const [comment, setComment] = useState('')
-  const [editingReviewId, setEditingReviewId] = useState(null)
 
   const handleReviewSubmit = (e) => {
     e.preventDefault()
@@ -190,7 +219,7 @@ export default function Profile() {
             <div className={styles.orders}>
               <div className={styles.ordersHeader}>
                 <h3 className={styles.tabTitle}>Recent Orders</h3>
-                {userOrders.length > 0 && (
+                {userOrders.length > 0 && !userOrders.some(o => o.status !== 'delivered' && o.status !== 'cancelled') && (
                   <button
                     className={styles.clearBtn}
                     onClick={() => {
@@ -222,10 +251,12 @@ export default function Profile() {
                   <div 
                     key={order._id} 
                     id={`order-${order._id}`}
-                    className={`${styles.orderCard} ${(order.status !== 'delivered' && order.status !== 'cancelled') ? styles.clickableCard : ''} ${highlightedId === order._id ? styles.highlighted : ''}`}
+                    className={`${styles.orderCard} ${styles.clickableCard} ${highlightedId === order._id ? styles.highlighted : ''}`}
                     onClick={() => {
                       if (order.status !== 'delivered' && order.status !== 'cancelled') {
                         navigate(`/order-tracking/${order._id}`)
+                      } else {
+                        setSummaryOrderId(order._id)
                       }
                     }}
                   >
@@ -304,7 +335,15 @@ export default function Profile() {
                       </div>
                     </div>
                     <div className={styles.orderItems}>{order.items.map(i => `${i.name} × ${i.qty}`).join(' · ')}</div>
-                    <div className={styles.orderTotal}>Total: ₹{order.totalAmount}</div>
+                    <div className={styles.orderTotal}>Total: {formatPrice(order.totalAmount)}</div>
+                    {(order.status === 'delivered' || order.status === 'cancelled') && (
+                      <button 
+                        className={styles.summaryBtn}
+                        onClick={(e) => { e.stopPropagation(); setSummaryOrderId(order._id); }}
+                      >
+                        Order Summary
+                      </button>
+                    )}
                   </div>
                 )
               })}
@@ -393,6 +432,78 @@ export default function Profile() {
                 </form>
               </motion.div>
             </motion.div>
+          </ModalPortal>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {summaryOrderId && (
+          <ModalPortal>
+            <div className={styles.modalOverlay} onClick={() => setSummaryOrderId(null)}>
+              <motion.div 
+                className={styles.summaryModal}
+                onClick={e => e.stopPropagation()}
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+              >
+                <div className={styles.modalHeader}>
+                  <div>
+                    <h2 style={{ fontSize: '20px' }}>Order Summary</h2>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    {formatOrderId((summaryOrderId || '').replace('o', ''))} · {formatOrderDate(ORDERS.find(o => o._id === summaryOrderId)?.createdAt)}
+                    </p>
+                  </div>
+                  <button className={styles.closeBtn} onClick={() => setSummaryOrderId(null)}>✕</button>
+                </div>
+
+                <div className={styles.summaryContent}>
+                  <div className={styles.summaryItems}>
+                    {reconstructOrder(ORDERS.find(o => o._id === summaryOrderId))?.items?.map((item, i) => (
+                      <div key={i} className={styles.summaryItem}>
+                        <div className={styles.summaryItemInfo}>
+                          <span className={styles.summaryItemName}>{item.name}</span>
+                          <span className={styles.summaryItemQty}>× {item.qty}</span>
+                        </div>
+                        <span className={styles.summaryItemPrice}>{formatPrice((item.price || 0) * (item.qty || 1))}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.summaryTotals}>
+                    {(() => {
+                      const o = reconstructOrder(ORDERS.find(o => o._id === summaryOrderId))
+                      return (
+                        <>
+                          <div className={styles.summaryLine}>
+                            <span>Subtotal</span>
+                            <span>{formatPrice(o?.subtotal || 0)}</span>
+                          </div>
+                          <div className={styles.summaryLine}>
+                            <span>Tax (GST)</span>
+                            <span>{formatPrice(o?.tax || 0)}</span>
+                          </div>
+                          <div className={styles.summaryLine}>
+                            <span>Delivery Fee</span>
+                            <span>{o?.delivery === 0 ? 'FREE' : formatPrice(o?.delivery || 0)}</span>
+                          </div>
+                          <div className={`${styles.summaryLine} ${styles.summaryTotalLine}`}>
+                            <span>Total Paid</span>
+                            <span>{formatPrice(o?.total || 0)}</span>
+                          </div>
+                        </>
+                      )
+                    })()}
+                  </div>
+
+                  <div className={styles.summaryFooter}>
+                    <p>Payment Method: {ORDERS.find(o => o._id === summaryOrderId)?.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                    <button className="btn-primary" style={{ width: '100%', marginTop: '20px' }} onClick={() => setSummaryOrderId(null)}>
+                      Close Receipt
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </ModalPortal>
         )}
       </AnimatePresence>

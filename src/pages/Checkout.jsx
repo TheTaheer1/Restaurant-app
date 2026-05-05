@@ -142,7 +142,12 @@ export default function Checkout() {
         _id: newId,
         userId: 'u1',
         items: [...items],
-        totalAmount: Number(total) || 0,
+        subtotal: subtotal,
+        tax: tax,
+        delivery: delivery,
+        total: total,
+        totalAmount: total,
+        paymentMethod: form.payMethod,
         status: 'placed',
         createdAt: new Date().toISOString()
       }

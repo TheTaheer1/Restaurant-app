@@ -3,8 +3,29 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import AnimatedPage from '../components/AnimatedPage'
 import { formatOrderId } from '../utils/orderSlice'
+import { formatPrice } from '../utils/cartSlice'
 import { getStoredOrders, updateOrderStatus } from '../data/orders'
 import { MENU } from '../data/menu'
+
+const reconstructOrder = (order) => {
+  if (!order) return null
+  if (order.subtotal !== undefined && order.tax !== undefined) return order
+  
+  const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.qty), 0) || 0
+  const tax = Math.round(subtotal * 0.05)
+  const delivery = Math.max(0, (order.total || order.totalAmount || 0) - (subtotal + tax))
+  
+  return {
+    ...order,
+    subtotal,
+    tax,
+    delivery,
+    total: order.total || order.totalAmount
+  }
+}
+import { REVIEWS, addReview, updateReview } from '../data/reviews'
+import ModalPortal from '../components/ModalPortal'
+import { motion, AnimatePresence } from 'framer-motion'
 import styles from './OrderTracking.module.css'
 
 const STEPS = [
@@ -25,6 +46,32 @@ export default function OrderTracking() {
   const [order, setOrder] = useState(null)
   const [retryCount, setRetryCount] = useState(0)
   const [error, setError] = useState(null)
+  
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [rating, setRating] = useState(5)
+  const [comment, setComment] = useState('')
+  const [editingReviewId, setEditingReviewId] = useState(null)
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault()
+    if (editingReviewId) {
+      updateReview(editingReviewId, { rating, comment })
+      alert('Review updated successfully!')
+    } else {
+      const newReview = {
+        _id: 'r' + Date.now(),
+        userId: 'u1', // Assuming current user
+        orderId: orderId,
+        rating,
+        comment,
+        createdAt: new Date().toISOString().split('T')[0]
+      }
+      addReview(newReview)
+      alert('Thank you for your review!')
+    }
+    setShowReviewModal(false)
+  }
   
   useEffect(() => {
     try {
@@ -53,11 +100,10 @@ export default function OrderTracking() {
   const [currentStep, setCurrentStep] = useState(-1)
 
   useEffect(() => {
-    if (order) {
-      const initialStep = getInitialStep()
-      setCurrentStep(initialStep)
+    if (order && currentStep === -1) {
+      setCurrentStep(getInitialStep())
     }
-  }, [order])
+  }, [order, currentStep])
 
   const [estimatedTime] = useState(30)
 
@@ -130,7 +176,17 @@ export default function OrderTracking() {
                   <h3>Hope you enjoyed your meal!</h3>
                   <div className={styles.actionRow}>
                     <button className={styles.btnSecondary} onClick={() => navigate('/menu')}>Reorder Now</button>
-                    <button className={styles.btnOutline} onClick={() => navigate('/profile', { state: { openGeneralReview: true } })}>Rate Us</button>
+                    <button 
+                      className={styles.btnOutline} 
+                      onClick={() => {
+                        setEditingReviewId(null)
+                        setRating(5)
+                        setComment('')
+                        setShowReviewModal(true)
+                      }}
+                    >
+                      Rate Us
+                    </button>
                   </div>
                 </div>
               </div>
@@ -232,21 +288,67 @@ export default function OrderTracking() {
                   <button 
                     className={styles.btnOutline}
                     onClick={() => {
-                      const history = getStoredOrders()
-                      const stillExists = history.some(o => o._id === orderId)
-                      if (stillExists) {
-                        navigate('/profile', { state: { highlightOrder: orderId, openRateModal: true } })
+                      const existingReview = REVIEWS.find(r => r.orderId === orderId)
+                      if (existingReview) {
+                        setEditingReviewId(existingReview._id)
+                        setRating(existingReview.rating)
+                        setComment(existingReview.comment)
                       } else {
-                        navigate('/profile')
+                        setEditingReviewId(null)
+                        setRating(5)
+                        setComment('')
                       }
+                      setShowReviewModal(true)
                     }}
                   >
-                    Rate Order
+                    {REVIEWS.some(r => r.orderId === orderId) ? 'Edit Review' : 'Rate Order'}
                   </button>
                 </div>
               </div>
             )}
           </div>
+          )}
+
+          {order && (
+            <div className={styles.billCard}>
+              <h3 className={styles.cardTitle}>Bill Details</h3>
+              {(() => {
+                const o = reconstructOrder(order)
+                return (
+                  <>
+                    <div className={styles.billItems}>
+                      {o?.items?.map((item, i) => (
+                        <div key={i} className={styles.billItem}>
+                          <span>{item.name} × {item.qty}</span>
+                          <span>{formatPrice((item.price || 0) * (item.qty || 1))}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className={styles.billTotals}>
+                      <div className={styles.billLine}>
+                        <span>Subtotal</span>
+                        <span>{formatPrice(o?.subtotal || 0)}</span>
+                      </div>
+                      <div className={styles.billLine}>
+                        <span>Tax (GST)</span>
+                        <span>{formatPrice(o?.tax || 0)}</span>
+                      </div>
+                      <div className={styles.billLine}>
+                        <span>Delivery Fee</span>
+                        <span>{o?.delivery === 0 ? 'FREE' : formatPrice(o?.delivery || 0)}</span>
+                      </div>
+                      <div className={`${styles.billLine} ${styles.billTotalLine}`}>
+                        <span>Total Paid</span>
+                        <span>{formatPrice(o?.total || 0)}</span>
+                      </div>
+                    </div>
+                    <div className={styles.paymentInfo}>
+                      Paid via {o?.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
           )}
 
           {order && (
@@ -258,6 +360,54 @@ export default function OrderTracking() {
           )}
         </div>
       </div>
+      <AnimatePresence>
+        {showReviewModal && (
+          <ModalPortal>
+            <div className={styles.modalOverlay} onClick={() => setShowReviewModal(false)}>
+              <motion.div 
+                className={styles.modalContent}
+                onClick={e => e.stopPropagation()}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+              >
+                <div className={styles.modalHeader}>
+                  <h2>{editingReviewId ? 'Edit Your Review' : order ? 'Rate Your Order' : 'Rate Your Experience'}</h2>
+                  <button className={styles.closeBtn} onClick={() => setShowReviewModal(false)}>✕</button>
+                </div>
+                <form onSubmit={handleReviewSubmit}>
+                  <div className={styles.formGroup}>
+                    <label>Rating</label>
+                    <div className={styles.starRating}>
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <span 
+                          key={star}
+                          className={star <= rating ? styles.starActive : styles.star}
+                          onClick={() => setRating(star)}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Your Comment</label>
+                    <textarea 
+                      value={comment}
+                      onChange={e => setComment(e.target.value)}
+                      placeholder="Share your experience..."
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+                    {editingReviewId ? 'Update Review' : 'Submit Review'}
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          </ModalPortal>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
