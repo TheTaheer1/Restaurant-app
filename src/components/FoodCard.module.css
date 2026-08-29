@@ -31,7 +31,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 15px;
-  z-index: 2;
+  z-index: 3;
+  pointer-events: auto;
 }
 
 .wishBtn:hover {
@@ -89,8 +90,8 @@
 
 .popularBadge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 48px;
   background: var(--red-primary);
   color: white;
   padding: 2px 6px;
@@ -99,6 +100,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+  z-index: 2;
 }
 
 /* BODY */
