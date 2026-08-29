@@ -4,10 +4,23 @@ import { calcTotal, formatPrice } from '../utils/cartSlice'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Cart.module.css'
 
+const parseReservationDate = (date, time) => {
+  const [timeValue, meridiem] = String(time || '7:00 PM').split(' ')
+  const [hoursStr, minutesStr] = timeValue.split(':')
+  let hours = Number(hoursStr)
+
+  if (meridiem === 'PM' && hours !== 12) hours += 12
+  if (meridiem === 'AM' && hours === 12) hours = 0
+
+  return new Date(`${date}T${String(hours).padStart(2, '0')}:${minutesStr}:00`)
+}
+
 export default function Cart() {
   const navigate = useNavigate()
-  const { items, removeItem, updateQty, clearCart, addItem } = useCart()
+  const { items, reservations, removeItem, updateQty, clearCart, addItem, removeReservation, clearReservations } = useCart()
   const { subtotal, tax, delivery, total } = calcTotal(items)
+  const hasItems = items.length > 0
+  const hasReservations = reservations.length > 0
 
   return (
     <div className="page">
@@ -26,14 +39,50 @@ export default function Cart() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {items.length === 0 ? 'Start adding some delicious items' : `${items.length} exquisite items selected`}
+            {!hasItems ? 'Start adding some delicious items' : `${items.length} exquisite items selected`}
           </motion.p>
         </div>
       </div>
 
       <div className={styles.body}>
         <div className="container">
-          {items.length === 0 ? (
+          {hasReservations && (
+            <div className={styles.reservationSection}>
+              <div className={styles.itemsHeader}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h3 className={styles.sectionTitle}>Reservation History</h3>
+                  <span className={styles.subtleText}>Upcoming and past table bookings</span>
+                </div>
+                <button className={styles.clearBtn} onClick={clearReservations}>Clear All</button>
+              </div>
+
+              <div className={styles.reservationList}>
+                {reservations.map((reservation) => {
+                  const reservationDate = parseReservationDate(reservation.date, reservation.time)
+                  const isPast = reservationDate < new Date()
+
+                  return (
+                    <div key={reservation._id} className={styles.reservationCard}>
+                      <div className={styles.reservationMetaRow}>
+                        <span className={`${styles.reservationBadge} ${isPast ? styles.pastBadge : styles.upcomingBadge}`}>
+                          {isPast ? 'Past' : 'Upcoming'}
+                        </span>
+                        <button className={styles.cancelReservationBtn} onClick={() => removeReservation(reservation._id)}>
+                          Cancel
+                        </button>
+                      </div>
+
+                      <div className={styles.reservationName}>{reservation.name}</div>
+                      <div className={styles.reservationText}>{reservation.date} · {reservation.time}</div>
+                      <div className={styles.reservationText}>{reservation.guests} · {reservation.phone}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {!hasItems ? (
             <motion.div 
               className={styles.emptyState}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -102,6 +151,41 @@ export default function Cart() {
                     ))}
                   </AnimatePresence>
                 </div>
+
+                {hasReservations && (
+                  <div className={styles.reservationSectionInCart}>
+                    <div className={styles.itemsHeader} style={{ marginTop: '36px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <h3 className={styles.sectionTitle}>Reservation History</h3>
+                        <span className={styles.subtleText}>Saved for this visit</span>
+                      </div>
+                      <button className={styles.clearBtn} onClick={clearReservations}>Clear</button>
+                    </div>
+
+                    <div className={styles.reservationList}>
+                      {reservations.map((reservation) => {
+                        const reservationDate = parseReservationDate(reservation.date, reservation.time)
+                        const isPast = reservationDate < new Date()
+
+                        return (
+                          <div key={reservation._id} className={styles.reservationCard}>
+                            <div className={styles.reservationMetaRow}>
+                              <span className={`${styles.reservationBadge} ${isPast ? styles.pastBadge : styles.upcomingBadge}`}>
+                                {isPast ? 'Past' : 'Upcoming'}
+                              </span>
+                              <button className={styles.cancelReservationBtn} onClick={() => removeReservation(reservation._id)}>
+                                Cancel
+                              </button>
+                            </div>
+                            <div className={styles.reservationName}>{reservation.name}</div>
+                            <div className={styles.reservationText}>{reservation.date} · {reservation.time}</div>
+                            <div className={styles.reservationText}>{reservation.guests} · {reservation.phone}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Recommended Section */}
                 <div className={styles.recommendations}>

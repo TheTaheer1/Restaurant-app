@@ -57,6 +57,23 @@ function cartReducer(state, action) {
   }
 }
 
+function getInitialState() {
+  const saved = localStorage.getItem('cart')
+  if (!saved) return initialState
+
+  try {
+    const parsed = JSON.parse(saved)
+    return {
+      ...initialState,
+      ...parsed,
+      items: parsed.items || [],
+      reservations: parsed.reservations || [],
+    }
+  } catch (error) {
+    return initialState
+  }
+}
+
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState, (initial) => {
     try {
@@ -103,6 +120,9 @@ export function CartProvider({ children }) {
     sessionStorage.removeItem('savedAddress')
     localStorage.removeItem('savedAddress')
   }
+  const addReservation = (reservation) => dispatch({ type: 'ADD_RESERVATION', payload: reservation })
+  const removeReservation = (_id) => dispatch({ type: 'REMOVE_RESERVATION', payload: _id })
+  const clearReservations = () => dispatch({ type: 'CLEAR_RESERVATIONS' })
   const toggleCart = ()              => dispatch({ type: 'TOGGLE_CART' })
   const applyCoupon = (code, discount) => dispatch({ type: 'APPLY_COUPON', payload: { code, discount } })
   const removeCoupon = ()            => dispatch({ type: 'REMOVE_COUPON' })
@@ -128,6 +148,9 @@ export function CartProvider({ children }) {
       showToast,
       hideToast,
       clearCart,
+      addReservation,
+      removeReservation,
+      clearReservations,
       toggleCart,
       applyCoupon,
       removeCoupon,
