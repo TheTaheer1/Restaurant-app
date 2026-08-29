@@ -148,6 +148,53 @@ a {
   animation: slideUpIn 0.6s ease forwards;
 }
 
+.floating-toast {
+  position: fixed;
+  top: 82px;
+  right: 24px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 16px;
+  border-radius: 14px;
+  background: rgba(31, 19, 8, 0.96);
+  border: 1px solid rgba(232, 168, 76, 0.4);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55);
+  max-width: min(92vw, 360px);
+}
+
+.floating-toast-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.floating-toast-copy strong {
+  font-size: 13px;
+  color: var(--brown-cream);
+  line-height: 1.2;
+}
+
+.floating-toast-copy span {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.floating-toast-action {
+  background: var(--brown-light);
+  color: var(--brown-darkest);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 @keyframes slideUpIn {
   to {
     opacity: 1;

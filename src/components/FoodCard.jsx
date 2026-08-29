@@ -4,17 +4,24 @@ import { motion } from 'framer-motion'
 import styles from './FoodCard.module.css'
 
 export default function FoodCard({ item }) {
-  const { addItem, items, updateQty } = useCart()
+  const { addItem, items, updateQty, wishlist, toggleWishlist, showToast } = useCart()
   const [added, setAdded] = useState(false)
 
   const cartItem = items.find(i => i._id === item._id)
   const qty = cartItem ? cartItem.qty : 0
+  const isWishlisted = wishlist.some(w => w._id === item._id)
 
   function handleAdd(e) {
-    e.stopPropagation(); // prevent card click
+    e.stopPropagation();
     addItem(item)
+    showToast(item.name, 'Added to your cart')
     setAdded(true)
     setTimeout(() => setAdded(false), 1200)
+  }
+
+  function handleWishlist(e) {
+    e.stopPropagation();
+    toggleWishlist(item)
   }
 
   function handleInc(e) { e.stopPropagation(); updateQty(item._id, qty + 1) }
@@ -29,6 +36,14 @@ export default function FoodCard({ item }) {
         <div className={styles.imgPlaceholder} style={{ background: 'none' }}>
           <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
+        <button
+          type="button"
+          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          className={`${styles.wishBtn} ${isWishlisted ? styles.wishBtnActive : ''}`}
+          onClick={handleWishlist}
+        >
+          {isWishlisted ? '♥' : '♡'}
+        </button>
         <span className={styles.vegBadge} style={{ color: item.isVeg ? '#388e3c' : '#d4523a' }}>
           {item.isVeg ? 'Veg' : 'Non-Veg'}
         </span>
