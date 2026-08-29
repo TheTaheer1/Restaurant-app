@@ -19,7 +19,7 @@ function CartToast() {
 
   useEffect(() => {
     if (!toast) return undefined
-    const timer = setTimeout(() => hideToast(), 2200)
+    const timer = setTimeout(() => hideToast(), 6000)
     return () => clearTimeout(timer)
   }, [toast, hideToast])
 
@@ -28,16 +28,17 @@ function CartToast() {
       {toast && (
         <motion.div
           className="floating-toast"
-          initial={{ opacity: 0, y: -20, scale: 0.96 }}
+          initial={{ opacity: 0, y: -24, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.96 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
+          exit={{ opacity: 0, y: -12, scale: 0.96 }}
+          transition={{ duration: 0.28, ease: 'easeOut' }}
         >
           <div className="floating-toast-copy">
             <strong>{toast.title}</strong>
             <span>{toast.subtitle}</span>
           </div>
-          <Link to="/cart" className="floating-toast-action">View cart</Link>
+          <Link to="/cart" className="floating-toast-action" onClick={hideToast}>View cart</Link>
+          <button type="button" className="floating-toast-close" onClick={hideToast} aria-label="Close cart popup">×</button>
         </motion.div>
       )}
     </AnimatePresence>
