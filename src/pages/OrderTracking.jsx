@@ -37,6 +37,22 @@ const STEPS = [
   { id: 'delivered', label: 'Delivered', icon: '🏡', time: '3:05 PM', partnerMsg: 'Order delivered successfully!' }
 ]
 
+const getHelpReply = (message, currentStep = 0) => {
+  const text = String(message || '').toLowerCase().replace(/\s+/g, ' ').trim()
+
+  if (!text) return 'Tell me how I can help with your order.'
+  if (/hi|hello|hey|good morning|good evening/.test(text)) return 'Hi! I can help with your order status, delivery time, refund, cancellation, or reordering.'
+  if (/status|track|where|when.*arriv|eta|delivery.*time|on the way|progress/.test(text)) return `Your order is currently in the ${STEPS[Math.max(0, Math.min(currentStep || 0, STEPS.length - 1))]?.label || 'tracking'} stage. We will keep updating you as it moves forward.`
+  if (/cancel|stop|remove|not needed/.test(text)) return 'We can help with a cancellation if it has not been prepared yet. Please contact the restaurant directly or tell us the exact issue and we will guide you.'
+  if (/refund|money back|charged|payment|card|cash|wallet/.test(text)) return 'If your payment has not been settled correctly, we can look into it. Please share the payment method or amount, and we will help verify it.'
+  if (/address|location|house|door|pin|delivery/.test(text)) return 'We can help check delivery details. Please confirm the delivery address and contact number so we can verify the exact drop point.'
+  if (/reorder|again|repeat|same order/.test(text)) return 'You can reorder from the menu page. If you want the same dish again, we can help you find it quickly.'
+  if (/contact|support|call|restaurant|phone|number/.test(text)) return 'You can also call our support team at +91 98765 43210. Our chat assistant can still help with most questions here.'
+  if (/thanks|thank you/.test(text)) return 'You are welcome! I am here to help with your order anytime.'
+
+  return 'Thanks for your message. I can help with order tracking, delivery updates, cancellation requests, payment questions, or reordering. Tell me what you need.'
+}
+
 export default function OrderTracking() {
   const { orderId } = useParams()
   const navigate = useNavigate()
@@ -52,6 +68,11 @@ export default function OrderTracking() {
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [editingReviewId, setEditingReviewId] = useState(null)
+  const [showHelpChat, setShowHelpChat] = useState(false)
+  const [helpInput, setHelpInput] = useState('')
+  const [helpMessages, setHelpMessages] = useState([
+    { id: 1, sender: 'bot', text: 'Hi! I can help with your order status, delivery timing, refunds, cancellations, or reordering.' }
+  ])
 
   const handleReviewSubmit = (e) => {
     e.preventDefault()
@@ -71,6 +92,18 @@ export default function OrderTracking() {
       alert('Thank you for your review!')
     }
     setShowReviewModal(false)
+  }
+
+  const handleHelpSend = (e) => {
+    e.preventDefault()
+    const trimmed = helpInput.trim()
+    if (!trimmed) return
+
+    const userMessage = { id: Date.now(), sender: 'user', text: trimmed }
+    const botReply = { id: Date.now() + 1, sender: 'bot', text: getHelpReply(trimmed, currentStep) }
+
+    setHelpMessages(prev => [...prev, userMessage, botReply])
+    setHelpInput('')
   }
   
   useEffect(() => {
@@ -354,8 +387,41 @@ export default function OrderTracking() {
           {order && (
             <div className={styles.helpCard}>
               <h3>Need Help?</h3>
-              <p>Call our support at +91 98765 43210 for any order queries.</p>
-              <a href="tel:+919876543210" className={styles.btnSecondary} style={{display: 'inline-block', width: '100%'}}>Contact Restaurant</a>
+              <p>Chat with our support assistant for order updates, cancellations, refunds, and more.</p>
+              <button className={styles.btnSecondary} style={{display: 'inline-block', width: '100%'}} onClick={() => setShowHelpChat(true)}>
+                Open Chat Support
+              </button>
+            </div>
+          )}
+
+          {showHelpChat && (
+            <div className={styles.chatPanel}>
+              <div className={styles.chatHeader}>
+                <div>
+                  <div className={styles.chatTitle}>Support Chat</div>
+                  <div className={styles.chatStatus}>Online now</div>
+                </div>
+                <button className={styles.closeChat} onClick={() => setShowHelpChat(false)} aria-label="Close chat">✕</button>
+              </div>
+
+              <div className={styles.chatMessages}>
+                {helpMessages.map(msg => (
+                  <div key={msg.id} className={`${styles.chatBubble} ${msg.sender === 'user' ? styles.userBubble : styles.botBubble}`}>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+
+              <form className={styles.chatInputRow} onSubmit={handleHelpSend}>
+                <input
+                  type="text"
+                  value={helpInput}
+                  onChange={e => setHelpInput(e.target.value)}
+                  placeholder="Ask about your order..."
+                  aria-label="Type your message"
+                />
+                <button type="submit">Send</button>
+              </form>
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import FoodCard from '../components/FoodCard'
 import { FoodGridSkeleton } from '../components/Skeleton'
@@ -7,6 +7,8 @@ import styles from './Menu.module.css'
 import { MENU } from '../data/menu'
 
 const CATEGORIES = ['All', ...new Set(MENU.map(i => i.category))]
+
+const normalizeSearchText = value => value.toLowerCase().replace(/\s+/g, '').trim()
 
 export default function Menu() {
   const location = useLocation()
@@ -17,6 +19,7 @@ export default function Menu() {
   const [vegFilter, setVegFilter] = useState('all')
 
   const [loading, setLoading] = useState(true)
+  const normalizedSearch = useMemo(() => normalizeSearchText(search), [search])
 
   useEffect(() => {
     setLoading(true)
@@ -24,12 +27,14 @@ export default function Menu() {
     return () => clearTimeout(t)
   }, [activeCategory, search, vegFilter])
 
-  const filtered = MENU.filter(item => {
-    const matchCat = activeCategory === 'All' || item.category === activeCategory
-    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase())
-    const matchVeg = vegFilter === 'all' || (vegFilter === 'veg' ? item.isVeg : !item.isVeg)
-    return matchCat && matchSearch && matchVeg
-  })
+  const filtered = useMemo(() => {
+    return MENU.filter(item => {
+      const matchCat = activeCategory === 'All' || item.category === activeCategory
+      const matchSearch = !normalizedSearch || normalizeSearchText(item.name).includes(normalizedSearch)
+      const matchVeg = vegFilter === 'all' || (vegFilter === 'veg' ? item.isVeg : !item.isVeg)
+      return matchCat && matchSearch && matchVeg
+    })
+  }, [activeCategory, normalizedSearch, vegFilter])
 
   return (
     <div className="page">
