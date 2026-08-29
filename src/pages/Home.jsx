@@ -165,6 +165,7 @@ function MenuSlider({ items }) {
 export default function Home() {
   const signatureItems = MENU.filter(m => m.isSignature);
   const navigate = useNavigate();
+  const { addReservation } = useCart()
   const [slideIndex, setSlideIndex] = useState(0);
 
   const scrollTo = (selector) => {
@@ -174,6 +175,35 @@ export default function Home() {
   const handleCta = (action) => {
     if (action === 'menu') navigate('/menu')
     else scrollTo('#reserve')
+  }
+
+  const handleReservationSubmit = (event) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+
+    const name = String(formData.get('name') || '').trim()
+    const phone = String(formData.get('phone') || '').trim()
+    const date = String(formData.get('date') || '').trim()
+    const time = String(formData.get('time') || '7:00 PM')
+    const guests = String(formData.get('guests') || '4 Guests')
+
+    if (!name || !phone || !date) return
+
+    const reservation = {
+      _id: `res-${Date.now()}`,
+      name,
+      phone,
+      date,
+      time,
+      guests,
+      status: 'upcoming',
+      createdAt: new Date().toISOString(),
+    }
+
+    addReservation(reservation)
+    alert('Table reserved! Your reservation has been added to your cart history.')
+    form.reset()
   }
 
   useEffect(() => {
@@ -410,25 +440,25 @@ export default function Home() {
             <div>📞 &nbsp; +91 98400 00000</div>
           </div>
         </div>
-        <form className={`${styles.resForm} glass-panel`} style={{ padding: '40px' }} onSubmit={(e) => { e.preventDefault(); alert('Table reserved! We look forward to welcoming you.'); e.target.reset(); }}>
+        <form className={`${styles.resForm} glass-panel`} style={{ padding: '40px' }} onSubmit={handleReservationSubmit}>
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <label>Full Name</label>
-              <input type="text" required placeholder="Priya Sharma" />
+              <input type="text" name="name" required placeholder="Priya Sharma" />
             </div>
             <div className={styles.formField}>
               <label>Phone</label>
-              <input type="tel" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" placeholder="+91 00000 00000" />
+              <input type="tel" name="phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" placeholder="+91 00000 00000" />
             </div>
           </div>
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <label>Date</label>
-              <input type="date" required min={new Date().toISOString().split('T')[0]} />
+              <input type="date" name="date" required min={new Date().toISOString().split('T')[0]} />
             </div>
             <div className={styles.formField}>
               <label>Time</label>
-              <select>
+              <select name="time" defaultValue="7:00 PM">
                 <option>7:00 PM</option>
                 <option>7:30 PM</option>
                 <option>8:00 PM</option>
@@ -439,7 +469,7 @@ export default function Home() {
           </div>
           <div className={styles.formField}>
             <label>Guests</label>
-            <select defaultValue="4 Guests">
+            <select name="guests" defaultValue="4 Guests">
               <option>1 Guest</option>
               <option>2 Guests</option>
               <option>3 Guests</option>

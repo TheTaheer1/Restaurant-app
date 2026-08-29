@@ -76,6 +76,125 @@
   gap: 20px;
 }
 
+.reservationSection {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  padding: 28px 24px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+}
+
+.reservationSectionInCart {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  padding: 28px 24px 24px;
+  margin-top: 28px;
+}
+
+.subtleText {
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reservationList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.reservationCard {
+  background: linear-gradient(180deg, rgba(46, 31, 18, 0.82), rgba(18, 12, 9, 0.9));
+  border: 1px solid rgba(232, 168, 76, 0.22);
+  border-radius: var(--radius-xl);
+  padding: 18px 18px 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.reservationCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232, 168, 76, 0.45);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
+}
+
+.reservationMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.reservationBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.upcomingBadge {
+  background: rgba(76, 175, 80, 0.12);
+  color: #8ce0a4;
+  border: 1px solid rgba(76, 175, 80, 0.25);
+}
+
+.pastBadge {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d9c4a3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cancelReservationBtn {
+  background: rgba(244, 67, 54, 0.12);
+  color: #ff8f8f;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelReservationBtn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: #fff;
+}
+
+.reservationName {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--brown-cream);
+  margin-bottom: 8px;
+}
+
+.reservationText {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.emptyReservationBox {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(232, 168, 76, 0.25);
+  border-radius: var(--radius-xl);
+  padding: 24px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .cartItem {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);

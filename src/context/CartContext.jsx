@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useEffect } from 'react'
 
 const CartContext = createContext(null)
 
-const initialState = { items: [], isOpen: false, coupon: null, discount: 0 }
+const initialState = { items: [], reservations: [], isOpen: false, coupon: null, discount: 0 }
 
 function cartReducer(state, action) {
   switch (action.type) {
@@ -31,6 +31,21 @@ function cartReducer(state, action) {
         ),
       }
     }
+    case 'ADD_RESERVATION':
+      return {
+        ...state,
+        reservations: [
+          { ...action.payload, _id: action.payload._id || `res-${Date.now()}` },
+          ...state.reservations,
+        ],
+      }
+    case 'REMOVE_RESERVATION':
+      return {
+        ...state,
+        reservations: state.reservations.filter(r => r._id !== action.payload),
+      }
+    case 'CLEAR_RESERVATIONS':
+      return { ...state, reservations: [] }
     case 'CLEAR_CART':
       return { ...state, items: [], coupon: null, discount: 0 }
     case 'TOGGLE_CART':
@@ -44,11 +59,25 @@ function cartReducer(state, action) {
   }
 }
 
+function getInitialState() {
+  const saved = localStorage.getItem('cart')
+  if (!saved) return initialState
+
+  try {
+    const parsed = JSON.parse(saved)
+    return {
+      ...initialState,
+      ...parsed,
+      items: parsed.items || [],
+      reservations: parsed.reservations || [],
+    }
+  } catch (error) {
+    return initialState
+  }
+}
+
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState, (initial) => {
-    const saved = localStorage.getItem('cart')
-    return saved ? JSON.parse(saved) : initial
-  })
+  const [state, dispatch] = useReducer(cartReducer, undefined, getInitialState)
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(state))
@@ -66,6 +95,9 @@ export function CartProvider({ children }) {
     sessionStorage.removeItem('savedAddress')
     localStorage.removeItem('savedAddress')
   }
+  const addReservation = (reservation) => dispatch({ type: 'ADD_RESERVATION', payload: reservation })
+  const removeReservation = (_id) => dispatch({ type: 'REMOVE_RESERVATION', payload: _id })
+  const clearReservations = () => dispatch({ type: 'CLEAR_RESERVATIONS' })
   const toggleCart = ()              => dispatch({ type: 'TOGGLE_CART' })
   const applyCoupon = (code, discount) => dispatch({ type: 'APPLY_COUPON', payload: { code, discount } })
   const removeCoupon = ()            => dispatch({ type: 'REMOVE_COUPON' })
@@ -76,6 +108,7 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider value={{
       items: state.items,
+      reservations: state.reservations,
       isOpen: state.isOpen,
       coupon: state.coupon,
       discount: state.discount,
@@ -85,6 +118,9 @@ export function CartProvider({ children }) {
       removeItem,
       updateQty,
       clearCart,
+      addReservation,
+      removeReservation,
+      clearReservations,
       toggleCart,
       applyCoupon,
       removeCoupon,

@@ -38,7 +38,7 @@ function getInitials(name) {
 export default function Profile() {
   const [tab, setTab] = useState(() => sessionStorage.getItem('profile_tab') || 'orders')
   const navigate = useNavigate()
-  const { addItem } = useCart()
+  const { addItem, reservations } = useCart()
 
   useEffect(() => {
     sessionStorage.setItem('profile_tab', tab)
@@ -254,6 +254,28 @@ export default function Profile() {
         <div className="container">
           {tab === 'orders' && (
             <div className={styles.orders}>
+              {reservations.length > 0 && (
+                <div style={{ marginBottom: '28px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-xl)', padding: '24px' }}>
+                  <div className={styles.ordersHeader} style={{ marginBottom: '16px' }}>
+                    <h3 className={styles.tabTitle}>Reservation History</h3>
+                  </div>
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {reservations.map((reservation) => (
+                      <div key={reservation._id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '14px', padding: '16px 18px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
+                          <strong style={{ color: '#f5e7d6' }}>{reservation.name}</strong>
+                          <span style={{ fontSize: '12px', color: '#d7b88a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                            {new Date(`${reservation.date}T00:00:00`) < new Date() ? 'Past' : 'Upcoming'}
+                          </span>
+                        </div>
+                        <div style={{ color: '#d8c4a7', fontSize: '14px' }}>{reservation.date} · {reservation.time}</div>
+                        <div style={{ color: '#d8c4a7', fontSize: '14px' }}>{reservation.guests} · {reservation.phone}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className={styles.ordersHeader}>
                 <h3 className={styles.tabTitle}>Recent Orders</h3>
                 {userOrders.length > 0 && !userOrders.some(o => o.status !== 'delivered' && o.status !== 'cancelled') && (
