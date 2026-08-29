@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useEffect } from 'react'
 
 const CartContext = createContext(null)
 
-const initialState = { items: [], isOpen: false, coupon: null, discount: 0 }
+const initialState = { items: [], wishlist: [], isOpen: false, coupon: null, discount: 0, toast: null }
 
 function cartReducer(state, action) {
   switch (action.type) {
@@ -31,6 +31,19 @@ function cartReducer(state, action) {
         ),
       }
     }
+    case 'TOGGLE_WISHLIST': {
+      const exists = state.wishlist.some(item => item._id === action.payload._id)
+      return {
+        ...state,
+        wishlist: exists
+          ? state.wishlist.filter(item => item._id !== action.payload._id)
+          : [...state.wishlist, action.payload],
+      }
+    }
+    case 'SHOW_TOAST':
+      return { ...state, toast: action.payload }
+    case 'HIDE_TOAST':
+      return { ...state, toast: null }
     case 'CLEAR_CART':
       return { ...state, items: [], coupon: null, discount: 0 }
     case 'TOGGLE_CART':
@@ -46,21 +59,45 @@ function cartReducer(state, action) {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState, (initial) => {
-    const saved = localStorage.getItem('cart')
-    return saved ? JSON.parse(saved) : initial
+    try {
+      const saved = localStorage.getItem('cart')
+      if (!saved) return initial
+      const parsed = JSON.parse(saved)
+      return {
+        ...initial,
+        ...parsed,
+        items: parsed.items || [],
+        wishlist: parsed.wishlist || [],
+        coupon: parsed.coupon || null,
+        discount: parsed.discount || 0,
+        isOpen: false,
+        toast: null,
+      }
+    } catch {
+      return initial
+    }
   })
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state))
+    const cartState = {
+      items: state.items,
+      wishlist: state.wishlist,
+      coupon: state.coupon,
+      discount: state.discount,
+    }
+    localStorage.setItem('cart', JSON.stringify(cartState))
     if (state.items.length === 0) {
       sessionStorage.removeItem('savedAddress')
       localStorage.removeItem('savedAddress')
     }
-  }, [state])
+  }, [state.items, state.wishlist, state.coupon, state.discount])
 
   const addItem    = (item)          => dispatch({ type: 'ADD_ITEM',    payload: item })
   const removeItem = (_id)           => dispatch({ type: 'REMOVE_ITEM', payload: _id })
   const updateQty  = (_id, qty)      => dispatch({ type: 'UPDATE_QTY',  payload: { _id, qty } })
+  const toggleWishlist = (item)      => dispatch({ type: 'TOGGLE_WISHLIST', payload: item })
+  const showToast  = (title, subtitle = 'Added to your cart') => dispatch({ type: 'SHOW_TOAST', payload: { title, subtitle } })
+  const hideToast  = ()              => dispatch({ type: 'HIDE_TOAST' })
   const clearCart  = ()              => {
     dispatch({ type: 'CLEAR_CART' })
     sessionStorage.removeItem('savedAddress')
@@ -76,14 +113,20 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider value={{
       items: state.items,
+      wishlist: state.wishlist,
       isOpen: state.isOpen,
       coupon: state.coupon,
       discount: state.discount,
+      toast: state.toast,
       totalItems,
       totalPrice,
+      wishlistCount: state.wishlist.length,
       addItem,
       removeItem,
       updateQty,
+      toggleWishlist,
+      showToast,
+      hideToast,
       clearCart,
       toggleCart,
       applyCoupon,

@@ -7,7 +7,7 @@ import styles from './Navbar.module.css'
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { totalItems } = useCart()
+  const { totalItems, wishlistCount } = useCart()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -69,6 +69,12 @@ export default function Navbar() {
         <Link to="/profile" className={styles.iconBtn} aria-label="Profile">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
         </Link>
+
+        <Link to="/menu" className={styles.iconBtn} aria-label="Wishlist">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill={wishlistCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-8.5-5.4-10.7-10.1C.3 8.6 2 4 6.2 4c2.1 0 3.3 1.1 4.1 2.2.8-1.1 2-2.2 4.1-2.2 4.2 0 5.9 4.6 4.9 6.9C20.5 15.6 12 21 12 21z" /></svg>
+          {wishlistCount > 0 && <span className={styles.cartBadge}>{wishlistCount}</span>}
+        </Link>
+
         <Link to="/cart" className={styles.iconBtn} aria-label="Cart">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
           {totalItems > 0 && <span className={styles.cartBadge}>{totalItems}</span>}
