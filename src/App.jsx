@@ -1,7 +1,7 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { Routes, Route, useLocation, Link } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
-import { CartProvider } from './context/CartContext'
+import { CartProvider, useCart } from './context/CartContext'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Menu from './pages/Menu'
@@ -12,14 +12,46 @@ import Admin from './pages/Admin'
 import OrderTracking from './pages/OrderTracking'
 import Success from './pages/Success'
 import ScrollToTop from './components/ScrollToTop'
+import { useEffect } from 'react'
 
-export default function App() {
-  const location = useLocation()
-  
+function CartToast() {
+  const { toast, hideToast } = useCart()
+
+  useEffect(() => {
+    if (!toast) return undefined
+    const timer = setTimeout(() => hideToast(), 2200)
+    return () => clearTimeout(timer)
+  }, [toast, hideToast])
+
   return (
-    <CartProvider>
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          className="floating-toast"
+          initial={{ opacity: 0, y: -20, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.96 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        >
+          <div className="floating-toast-copy">
+            <strong>{toast.title}</strong>
+            <span>{toast.subtitle}</span>
+          </div>
+          <Link to="/cart" className="floating-toast-action">View cart</Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+function AppShell() {
+  const location = useLocation()
+
+  return (
+    <>
       <ScrollToTop />
       <Navbar />
+      <CartToast />
       <AnimatePresence mode="popLayout">
         <Routes location={location} key={location.pathname}>
           <Route path="/"         element={<AnimatedPage><Home /></AnimatedPage>} />
@@ -32,6 +64,14 @@ export default function App() {
           <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
         </Routes>
       </AnimatePresence>
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <CartProvider>
+      <AppShell />
     </CartProvider>
   )
 }
